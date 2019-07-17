@@ -8,7 +8,7 @@ import imutils
 import time
 import cv2
 import os
-
+from measure import calc_vehicle_len
 from sort import *
 
 mot_tracker = Sort()
@@ -67,8 +67,8 @@ except:
     print("[INFO] no approx. completion time can be provided")
     total = -1
 
-np.arange(FRAMES*2).reshape(FRAMES, 2)
-
+detection_buff = [None]*FRAMES
+count = 0
 
 # loop over frames from the video file stream
 while True:
@@ -139,8 +139,8 @@ while True:
     mot_before_list = []
     # ensure at least one detection exists
     if len(idxs) > 0:
-        detection_count = len(idxs.flatten())
-        mot_before = np.arange(detection_count * 5).reshape(detection_count, 5)
+        # detection_count = len(idxs.flatten())
+        # mot_before = np.arange(detection_count * 5).reshape(detection_count, 5)
         # loop over the indexes we are keeping
         for i in idxs.flatten():
             # extract the bounding box coordinates
@@ -167,9 +167,19 @@ while True:
     mot_x1, mot_y1, mot_x2, mot_y2, obj_id = [0,0,0,0,0]
     for i in track_bbs_ids:
         mot_x1, mot_y1, mot_x2, mot_y2, obj_id = i
-        cv2.rectangle(frame, (int(mot_x1), int(mot_y1)), (int(mot_x2), int(mot_y2)), (0,255,0), 2)
+        x1_i = int(mot_x1)
+        y1_i = int(mot_y1)
+        x2_i = int(mot_x2)
+        y2_i = int(mot_y2)
+        cv2.rectangle(frame, (x1_i, y1_i), (x2_i, y2_i), (0,255,0), 2)
         text = str(obj_id)
-        cv2.putText(frame, text, (int(mot_x1), int(mot_y1) - 7),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)
+        cv2.putText(frame, text, (x1_i, y1_i - 7),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)
+    if count == FRAMES:
+        count = 0
+        calc_vehicle_len(detection_buff)
+
+    detection_buff[count] = track_bbs_ids
+    count = count + 1
     cv2.imshow('frame', frame)
     if cv2.waitKey(33) & 0xFF == ord('q'):
         break
