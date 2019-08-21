@@ -1,7 +1,9 @@
-def calc_vehicle_len(detection_buff):
+from graph import process_graph
+def calc_vehicle_len(detection_buff, frame):
     frames = len(detection_buff)
     frame_1_detec = detection_buff[0]
     final_detections = []
+    cleared_final_detections = []
     for frame in range(1, frames):
         for k in frame_1_detec:
             x1, y1, x2, y2, obj_id = k
@@ -21,3 +23,8 @@ def calc_vehicle_len(detection_buff):
                     else:
                         final_detections.append([k, r])
     print(final_detections)
+    for det in final_detections:  # remove tuples with frames less than 'frames' value
+        if len(det) == frames:
+            cleared_final_detections.append(det)
+    print(cleared_final_detections)
+    #process_graph(cleared_final_detections, frame)

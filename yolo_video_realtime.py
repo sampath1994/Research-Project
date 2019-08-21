@@ -176,7 +176,7 @@ while True:
         cv2.putText(frame, text, (x1_i, y1_i - 7),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)
     if count == FRAMES:
         count = 0
-        calc_vehicle_len(detection_buff)
+        calc_vehicle_len(detection_buff, frame)
 
     detection_buff[count] = track_bbs_ids
     count = count + 1
