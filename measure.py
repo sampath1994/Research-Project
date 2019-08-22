@@ -1,5 +1,5 @@
 from graph import process_graph
-def calc_vehicle_len(detection_buff, frame):
+def calc_vehicle_len(detection_buff, frm):
     frames = len(detection_buff)
     frame_1_detec = detection_buff[0]
     final_detections = []
@@ -27,4 +27,4 @@ def calc_vehicle_len(detection_buff, frame):
         if len(det) == frames:
             cleared_final_detections.append(det)
     print(cleared_final_detections)
-    #process_graph(cleared_final_detections, frame)
+    process_graph(cleared_final_detections, frm)

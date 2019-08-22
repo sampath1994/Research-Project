@@ -13,6 +13,7 @@ def find_center(detection):
     return [center_x,center_y]
 
 def compute_ratio(detection_set,frame):
+    # gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     centroid_list = []
     for det in detection_set:
         centroid_list.append(find_center(det))
