@@ -39,7 +39,7 @@ COLORS = np.random.randint(0, 255, size=(len(LABELS), 3),
 weightsPath = os.path.sep.join([args["yolo"], "yolov3.weights"])
 configPath = os.path.sep.join([args["yolo"], "yolov3.cfg"])
 FRAMES = 3
-
+CAR_LEN = 3.5  # Actual car length in meters
 # load our YOLO object detector trained on COCO dataset (80 classes)
 # and determine only the *output* layer names that we need from YOLO
 print("[INFO] loading YOLO from disk...")
@@ -176,7 +176,7 @@ while True:
         cv2.putText(frame, text, (x1_i, y1_i - 7),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)
     if count == FRAMES:
         count = 0
-        calc_vehicle_len(detection_buff, frame)
+        calc_vehicle_len(detection_buff, frame, CAR_LEN)
 
     detection_buff[count] = track_bbs_ids
     count = count + 1

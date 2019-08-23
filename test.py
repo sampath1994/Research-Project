@@ -10,10 +10,10 @@ _, contours, hier = cv2.findContours(thresh,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPL
 cnt = np.arange(FRAMES*2).reshape(FRAMES, 2)
 cnt[0][0] = 50
 cnt[0][1] = 50
-cnt[1][0] = 50
-cnt[1][1] = 70
-cnt[2][0] = 50
-cnt[2][1] = 100
+cnt[1][0] = 60
+cnt[1][1] = 60
+cnt[2][0] = 80
+cnt[2][1] = 80
 # then apply fitline() function
 [vx,vy,x,y] = cv2.fitLine(cnt,cv2.DIST_L2,0,0.01,0.01)
 # Now find two extreme points on the line to draw line

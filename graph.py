@@ -1,8 +1,12 @@
 import cv2
 import numpy as np
-def process_graph(cleared_final_detections , frame):
+import math
+def process_graph(cleared_final_detections , frame, car_len):
+    frameset_ratios = []
     for detection_set in cleared_final_detections:
-        compute_ratio(detection_set, frame)
+        frame_row, ratio = compute_ratio(detection_set, frame, car_len)
+        frameset_ratios.append([frame_row, ratio])
+    print(frameset_ratios)
 
 def find_center(detection):
     x1, y1, x2, y2, obj_id = detection
@@ -12,7 +16,7 @@ def find_center(detection):
     center_y = y1 + h/2
     return [center_x,center_y]
 
-def compute_ratio(detection_set,frame):
+def compute_ratio(detection_set,frame, car_len):
     # gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     centroid_list = []
     for det in detection_set:
@@ -22,3 +26,25 @@ def compute_ratio(detection_set,frame):
     lefty = int((-x * vy / vx) + y)
     righty = int(((frame.shape[1] - x) * vy / vx) + y)
     cv2.line(frame, (frame.shape[1] - 1, righty), (0, lefty), 255, 2)
+    pixel_row, pixel_len = median_intersection_length(detection_set, vx, vy, lefty)
+    if pixel_len>0:
+        ratio = car_len/pixel_len
+        return pixel_row, ratio
+    else:
+        return pixel_row, -1
+
+def median_intersection_length(detection_set,vx,vy,lefty):
+    length = len(detection_set)
+    middle = int(length/2) + 1
+    m = vy / vx
+    x1, y1, x2, y2, obj_id = detection_set[middle-1]  # from here onwards working on one bounding box
+    upper_x = (y1-lefty) / m
+    upper = [upper_x, y1]
+    lower_x = (y2-lefty) / m
+    lower = [lower_x, y2]
+    median_frm_center = find_center(detection_set[middle-1])
+    if x1<upper_x and upper_x<x2 and x1<lower_x and lower_x<x2:
+        pixel_dist_car = math.sqrt((upper_x - lower_x) ** 2 + (y2 - y1) ** 2)
+        return median_frm_center[1], pixel_dist_car
+    else:
+        return median_frm_center[1], -1
