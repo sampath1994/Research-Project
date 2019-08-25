@@ -1,12 +1,14 @@
 import cv2
 import numpy as np
 import math
+import matplotlib.pyplot as plt
 def process_graph(cleared_final_detections , frame, car_len):
     frameset_ratios = []
     for detection_set in cleared_final_detections:
         frame_row, ratio = compute_ratio(detection_set, frame, car_len)
         frameset_ratios.append([frame_row, ratio])
     print(frameset_ratios)
+    return frameset_ratios
 
 def find_center(detection):
     x1, y1, x2, y2, obj_id = detection
@@ -48,3 +50,15 @@ def median_intersection_length(detection_set,vx,vy,lefty):
         return median_frm_center[1], pixel_dist_car
     else:
         return median_frm_center[1], -1
+
+def draw_ratio_graph(ratio_list):
+    row_values = []
+    ratio_values = []
+    for item in ratio_list:
+        row, ratio = item
+        row_values.append(row)
+        ratio_values.append(ratio)
+    plt.plot(row_values,ratio_values, 'ro')
+    plt.ylabel('Meters per pixel')
+    plt.xlabel('Row number of a frame')
+    plt.show()

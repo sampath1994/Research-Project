@@ -27,4 +27,4 @@ def calc_vehicle_len(detection_buff, frm, car_len):
         if len(det) == frames:
             cleared_final_detections.append(det)
     print(cleared_final_detections)
-    process_graph(cleared_final_detections, frm, car_len)
+    return process_graph(cleared_final_detections, frm, car_len)

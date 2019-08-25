@@ -9,6 +9,7 @@ import time
 import cv2
 import os
 from measure import calc_vehicle_len
+from graph import draw_ratio_graph
 from sort import *
 
 mot_tracker = Sort()
@@ -39,7 +40,7 @@ COLORS = np.random.randint(0, 255, size=(len(LABELS), 3),
 weightsPath = os.path.sep.join([args["yolo"], "yolov3.weights"])
 configPath = os.path.sep.join([args["yolo"], "yolov3.cfg"])
 FRAMES = 3
-CAR_LEN = 3.5  # Actual car length in meters
+CAR_LEN = 350  # Actual car length in centimeters
 # load our YOLO object detector trained on COCO dataset (80 classes)
 # and determine only the *output* layer names that we need from YOLO
 print("[INFO] loading YOLO from disk...")
@@ -69,6 +70,7 @@ except:
 
 detection_buff = [None]*FRAMES
 count = 0
+ratio_list = []
 
 # loop over frames from the video file stream
 while True:
@@ -176,7 +178,7 @@ while True:
         cv2.putText(frame, text, (x1_i, y1_i - 7),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)
     if count == FRAMES:
         count = 0
-        calc_vehicle_len(detection_buff, frame, CAR_LEN)
+        ratio_list.extend(calc_vehicle_len(detection_buff, frame, CAR_LEN))
 
     detection_buff[count] = track_bbs_ids
     count = count + 1
@@ -199,7 +201,8 @@ while True:
 
     # write the output frame to disk
     # writer.write(frame)
-
+print(ratio_list)
+draw_ratio_graph(ratio_list)
 # release the file pointers
 print("[INFO] cleaning up...")
 writer.release()
