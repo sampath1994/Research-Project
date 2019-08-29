@@ -2,11 +2,13 @@ import cv2
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+import csv
 def process_graph(cleared_final_detections , frame, car_len):
     frameset_ratios = []
     for detection_set in cleared_final_detections:
         frame_row, ratio = compute_ratio(detection_set, frame, car_len)
-        frameset_ratios.append([frame_row, ratio])
+        if ratio > 0:
+            frameset_ratios.append([frame_row, ratio])
     print(frameset_ratios)
     return frameset_ratios
 
@@ -30,7 +32,8 @@ def compute_ratio(detection_set,frame, car_len):
     cv2.line(frame, (frame.shape[1] - 1, righty), (0, lefty), 255, 2)
     pixel_row, pixel_len = median_intersection_length(detection_set, vx, vy, lefty)
     if pixel_len>0:
-        ratio = car_len/pixel_len
+        # ratio = car_len/pixel_len    # now giving the pixel length
+        ratio = pixel_len
         return pixel_row, ratio
     else:
         return pixel_row, -1
@@ -62,3 +65,12 @@ def draw_ratio_graph(ratio_list):
     plt.ylabel('Meters per pixel')
     plt.xlabel('Row number of a frame')
     plt.show()
+    write_csv(row_values, ratio_values)
+
+def write_csv(rows,ratios):
+    with open('ratio_data.csv', 'w', newline='') as myfile:
+        zipped_rows = zip(rows, ratios)
+        wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
+        for one_row in zipped_rows:
+            wr.writerow(one_row)
+        print("Done CSV write")
