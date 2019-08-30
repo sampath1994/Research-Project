@@ -41,6 +41,7 @@ weightsPath = os.path.sep.join([args["yolo"], "yolov3.weights"])
 configPath = os.path.sep.join([args["yolo"], "yolov3.cfg"])
 FRAMES = 3
 CAR_LEN = 350  # Actual car length in centimeters
+MIN_BB_HEIGHT = 25
 # load our YOLO object detector trained on COCO dataset (80 classes)
 # and determine only the *output* layer names that we need from YOLO
 print("[INFO] loading YOLO from disk...")
@@ -161,7 +162,7 @@ while True:
                                        confidences[i])
             cv2.putText(frame, text, (x, y - 5),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-            if LABELS[classIDs[i]] == 'car':
+            if LABELS[classIDs[i]] == 'car' and h > MIN_BB_HEIGHT:
                 mot_before_list.append([x, y, x + w, y + h, confidences[i]])
     mot_before_np = np.array(mot_before_list)
     track_bbs_ids = mot_tracker.update(mot_before_np)

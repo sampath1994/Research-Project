@@ -80,7 +80,15 @@ def learn_model(x, y):
     plt.legend()
     plt.show()
 
+def test_graph(x,y):
+    predictions = x*0.33848 - 90.2134
+    plt.plot(x, y, 'ro', label='Original data')
+    plt.plot(x, predictions, label='Fitted line')
+    plt.title('Linear Regression Result')
+    plt.legend()
+    plt.show()
 
 if __name__ == "__main__":
     df = pd.read_csv("ratio_data.csv", delimiter=',', header=None)
     learn_model(df[0].values, df[1].values)
+    # test_graph(df[0].values, df[1].values)
