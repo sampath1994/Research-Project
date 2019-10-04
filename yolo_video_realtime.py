@@ -188,7 +188,7 @@ while True:
         if TRAIN:
             ratio_list.extend(calc_vehicle_len(detection_buff, frame, CAR_LEN, TRAIN))
         else:
-            speed_list.extend(calc_vehicle_len(detection_buff, frame, CAR_LEN, TRAIN))
+            speed_list.append(calc_vehicle_len(detection_buff, frame, CAR_LEN, TRAIN))
 
     detection_buff[count] = track_bbs_ids
     count = count + 1

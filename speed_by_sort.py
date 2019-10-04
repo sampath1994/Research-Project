@@ -33,7 +33,7 @@ def measure_speed(detections, frame, frame_num):
         text = str(kmh_speed)
         if end_row > inaccurate_height:
             cv2.putText(frame, text, (int(x1), int(ey1) - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-            final_speeds.extend([car_id, kmh_speed, det[frame_num-1]])
+            final_speeds.append([car_id, kmh_speed, det[frame_num-1]])
         track_tail(det, frame)
     return final_speeds
 
