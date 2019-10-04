@@ -19,8 +19,9 @@ def measure_speed(detections, frame, frame_num):
     frame_rate = 50
     car_real_length = 4    # real car length in meters
     inaccurate_height = 160  # top pixel height abandoned from frame as centroid displacements are inaccurate
+    final_speeds = []  # speeds taken through cluster of frames
     for det in detections:
-        _, sy1, _, sy2, _ = det[0]
+        _, sy1, _, sy2, car_id = det[0]
         start_row = ((sy2 - sy1)/2) + sy1
         x1, ey1, _, ey2, _ = det[frame_num-1]
         end_row = ((ey2 - ey1) / 2) + ey1
@@ -28,12 +29,15 @@ def measure_speed(detections, frame, frame_num):
         time = (1/frame_rate) * (frame_num-1)
         speed = real_dis / time
         # speed = mean_row_displacement(det, w, b, frame_num, frame_rate, car_real_length)  # mean method
-        text = str(round(speed*3.6))
+        kmh_speed = round(speed*3.6)
+        text = str(kmh_speed)
         if end_row > inaccurate_height:
             cv2.putText(frame, text, (int(x1), int(ey1) - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+            final_speeds.extend([car_id, kmh_speed, det[frame_num-1]])
         track_tail(det, frame)
+    return final_speeds
 
-def track_tail(det, frame):
+def track_tail(det, frame):  # draw tail of BB centroid
     for fr in det:
        x1, y1, x2, y2, _ = fr
        cx = int(round(x1 + (x2 - x1)/2))

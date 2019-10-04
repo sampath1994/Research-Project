@@ -73,6 +73,7 @@ except:
 detection_buff = [None]*FRAMES
 count = 0
 ratio_list = []
+speed_list = []
 
 # loop over frames from the video file stream
 while True:
@@ -184,7 +185,10 @@ while True:
         cv2.putText(frame, text, (x1_i, y1_i - 7),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)
     if count == FRAMES:
         count = 0
-        ratio_list.extend(calc_vehicle_len(detection_buff, frame, CAR_LEN))
+        if TRAIN:
+            ratio_list.extend(calc_vehicle_len(detection_buff, frame, CAR_LEN, TRAIN))
+        else:
+            speed_list.extend(calc_vehicle_len(detection_buff, frame, CAR_LEN, TRAIN))
 
     detection_buff[count] = track_bbs_ids
     count = count + 1
@@ -210,6 +214,9 @@ while True:
 # print(ratio_list)
 if TRAIN:
     draw_ratio_graph(ratio_list)
+else:
+    print("Speed List")
+    print(speed_list)
 # release the file pointers
 print("[INFO] cleaning up...")
 # writer.release()
