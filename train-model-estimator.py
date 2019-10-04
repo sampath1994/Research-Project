@@ -11,7 +11,7 @@ def learn_estimator_model(x, y):
 
     xfc = tf.feature_column.numeric_column('x')
     estimator = tf.estimator.LinearRegressor(feature_columns=[xfc])
-    estimator.train(input_fn=input_fn, steps=150000)
+    estimator.train(input_fn=input_fn, steps=250000)
 
     w = estimator.get_variable_value('linear/linear_model/x/weights')[0][0]
     b = estimator.get_variable_value('linear/linear_model/bias_weights')[0]

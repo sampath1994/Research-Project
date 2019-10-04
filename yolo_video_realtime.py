@@ -39,9 +39,10 @@ COLORS = np.random.randint(0, 255, size=(len(LABELS), 3),
 # derive the paths to the YOLO weights and model configuration
 weightsPath = os.path.sep.join([args["yolo"], "yolov3.weights"])
 configPath = os.path.sep.join([args["yolo"], "yolov3.cfg"])
-FRAMES = 3
+FRAMES = 8
 CAR_LEN = 350  # Actual car length in centimeters
 MIN_BB_HEIGHT = 25
+TRAIN = False
 # load our YOLO object detector trained on COCO dataset (80 classes)
 # and determine only the *output* layer names that we need from YOLO
 print("[INFO] loading YOLO from disk...")
@@ -162,8 +163,12 @@ while True:
                                        confidences[i])
             cv2.putText(frame, text, (x, y - 5),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-            if LABELS[classIDs[i]] == 'car' and h > MIN_BB_HEIGHT:
-                mot_before_list.append([x, y, x + w, y + h, confidences[i]])
+            if TRAIN:
+                if LABELS[classIDs[i]] == 'car' and h > MIN_BB_HEIGHT:
+                    mot_before_list.append([x, y, x + w, y + h, confidences[i]])
+            else:
+                if h > MIN_BB_HEIGHT:
+                    mot_before_list.append([x, y, x + w, y + h, confidences[i]])
     mot_before_np = np.array(mot_before_list)
     track_bbs_ids = mot_tracker.update(mot_before_np)
     # print(track_bbs_ids)
@@ -202,9 +207,10 @@ while True:
 
     # write the output frame to disk
     # writer.write(frame)
-print(ratio_list)
-draw_ratio_graph(ratio_list)
+# print(ratio_list)
+if TRAIN:
+    draw_ratio_graph(ratio_list)
 # release the file pointers
 print("[INFO] cleaning up...")
-writer.release()
+# writer.release()
 vs.release()

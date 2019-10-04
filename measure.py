@@ -1,4 +1,5 @@
 from graph import process_graph
+from speed_by_sort import measure_speed
 def calc_vehicle_len(detection_buff, frm, car_len):
     frames = len(detection_buff)
     frame_1_detec = detection_buff[0]
@@ -27,4 +28,5 @@ def calc_vehicle_len(detection_buff, frm, car_len):
         if len(det) == frames:
             cleared_final_detections.append(det)
     print(cleared_final_detections)
+    measure_speed(cleared_final_detections, frm, frames)
     return process_graph(cleared_final_detections, frm, car_len)

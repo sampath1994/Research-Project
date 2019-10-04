@@ -7,7 +7,7 @@ def process_graph(cleared_final_detections , frame, car_len):
     frameset_ratios = []
     for detection_set in cleared_final_detections:
         frame_row, ratio = compute_ratio(detection_set, frame, car_len)
-        if ratio > 0:
+        if ratio > 0 and frame_row > 375:
             frameset_ratios.append([frame_row, ratio])
     print(frameset_ratios)
     return frameset_ratios
@@ -62,7 +62,7 @@ def draw_ratio_graph(ratio_list):
         row_values.append(row)
         ratio_values.append(ratio)
     plt.plot(row_values,ratio_values, 'ro')
-    plt.ylabel('Meters per pixel')
+    plt.ylabel('Pixel length')
     plt.xlabel('Row number of a frame')
     plt.show()
     write_csv(row_values, ratio_values)
