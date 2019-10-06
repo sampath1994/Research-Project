@@ -11,6 +11,7 @@ import os
 from measure import calc_vehicle_len
 from graph import draw_ratio_graph
 from sort import *
+from mean_speed import get_mean_speed, get_each_mean_speed
 
 mot_tracker = Sort()
 # construct the argument parse and parse the arguments
@@ -43,6 +44,9 @@ FRAMES = 8
 CAR_LEN = 350  # Actual car length in centimeters
 MIN_BB_HEIGHT = 25
 TRAIN = False
+mean_interval = 24  # Frame interval of showing mean speed
+current_mean_speed = 0
+
 # load our YOLO object detector trained on COCO dataset (80 classes)
 # and determine only the *output* layer names that we need from YOLO
 print("[INFO] loading YOLO from disk...")
@@ -74,6 +78,8 @@ detection_buff = [None]*FRAMES
 count = 0
 ratio_list = []
 speed_list = []
+total_speed_list = []
+frame_count = 0
 
 # loop over frames from the video file stream
 while True:
@@ -188,10 +194,17 @@ while True:
         if TRAIN:
             ratio_list.extend(calc_vehicle_len(detection_buff, frame, CAR_LEN, TRAIN))
         else:
-            speed_list.append(calc_vehicle_len(detection_buff, frame, CAR_LEN, TRAIN))
+            speed_list.extend(calc_vehicle_len(detection_buff, frame, CAR_LEN, TRAIN))
 
     detection_buff[count] = track_bbs_ids
     count = count + 1
+    frame_count = frame_count + 1
+    if (frame_count % mean_interval) == 0:
+        current_mean_speed = get_mean_speed(speed_list)
+        total_speed_list.extend(speed_list)
+        speed_list = []
+    m_speed_text = "Mean speed : " + str(current_mean_speed)
+    cv2.putText(frame, m_speed_text, (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     cv2.imshow('frame', frame)
     if cv2.waitKey(33) & 0xFF == ord('q'):
         break
@@ -217,6 +230,8 @@ if TRAIN:
 else:
     print("Speed List")
     print(speed_list)
+print("Total mean speed list for each vehicle")
+print(get_each_mean_speed(total_speed_list))
 # release the file pointers
 print("[INFO] cleaning up...")
 # writer.release()
