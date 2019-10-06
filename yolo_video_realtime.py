@@ -46,6 +46,8 @@ MIN_BB_HEIGHT = 25
 TRAIN = False
 mean_interval = 24  # Frame interval of showing mean speed
 current_mean_speed = 0
+SAVE_VIDEO = False
+FRAME_RATE = 50
 
 # load our YOLO object detector trained on COCO dataset (80 classes)
 # and determine only the *output* layer names that we need from YOLO
@@ -208,22 +210,21 @@ while True:
     cv2.imshow('frame', frame)
     if cv2.waitKey(33) & 0xFF == ord('q'):
         break
+    if SAVE_VIDEO:
         # check if the video writer is None
-    if writer is None:
-        # initialize our video writer
-        # fourcc = cv2.VideoWriter_fourcc(*"MJPG")
-        # writer = cv2.VideoWriter(args["output"], fourcc, 30,
-        # (frame.shape[1], frame.shape[0]), True)
+        if writer is None:
+            # initialize our video writer
+            fourcc = cv2.VideoWriter_fourcc(*"MJPG")
+            writer = cv2.VideoWriter(args["output"], fourcc, FRAME_RATE,(frame.shape[1], frame.shape[0]), True)
 
-        # some information on processing single frame
-        if total > 0:
-            elap = (end - start)
-            print("[INFO] single frame took {:.4f} seconds".format(elap))
-            print("[INFO] estimated total time to finish: {:.4f}".format(
-                elap * total))
+            # some information on processing single frame
+            if total > 0:
+                elap = (end - start)
+                print("[INFO] single frame took {:.4f} seconds".format(elap))
+                print("[INFO] estimated total time to finish: {:.4f}".format(elap * total))
 
-    # write the output frame to disk
-    # writer.write(frame)
+        # write the output frame to disk
+        writer.write(frame)
 # print(ratio_list)
 if TRAIN:
     draw_ratio_graph(ratio_list)
@@ -234,5 +235,6 @@ print("Total mean speed list for each vehicle")
 print(get_each_mean_speed(total_speed_list))
 # release the file pointers
 print("[INFO] cleaning up...")
-# writer.release()
+if SAVE_VIDEO:
+    writer.release()
 vs.release()
