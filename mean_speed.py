@@ -12,7 +12,9 @@ def get_mean_speed(speeds):
                 val = speed_map[carId]
                 val.append(kmh)
     for car,spds in speed_map.items():
-        average = average + (sum(spds)/len(spds))
+        sum_of_speeds = sum(spds)
+        if sum_of_speeds > 0:     # for now only considered vehicles coming towards camera
+            average = average + (sum_of_speeds/len(spds))
     if len(speed_map) != 0:
         mean_speed = average / len(speed_map)
     return mean_speed
