@@ -8,7 +8,7 @@ import imutils
 import time
 import cv2
 import os
-from measure import calc_vehicle_len
+from measure import calc_vehicle_len, count_vehicles
 from graph import draw_ratio_graph
 from sort import *
 from mean_speed import get_mean_speed, get_each_mean_speed
@@ -82,6 +82,7 @@ ratio_list = []
 speed_list = []
 total_speed_list = []
 frame_count = 0
+class_id_list = []
 
 # loop over frames from the video file stream
 while True:
@@ -172,12 +173,15 @@ while True:
                                        confidences[i])
             cv2.putText(frame, text, (x, y - 5),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+            class_id_list.append(classIDs[i])  # cleaned class id list
             if TRAIN:
                 if LABELS[classIDs[i]] == 'car' and h > MIN_BB_HEIGHT:
                     mot_before_list.append([x, y, x + w, y + h, confidences[i]])
             else:
                 if h > MIN_BB_HEIGHT:
                     mot_before_list.append([x, y, x + w, y + h, confidences[i]])
+    count_vehicles(class_id_list, frame)
+    class_id_list = []
     mot_before_np = np.array(mot_before_list)
     track_bbs_ids = mot_tracker.update(mot_before_np)
     # print(track_bbs_ids)
@@ -201,6 +205,7 @@ while True:
     detection_buff[count] = track_bbs_ids
     count = count + 1
     frame_count = frame_count + 1
+    print("Seconds : "+str(frame_count / FRAME_RATE))
     if (frame_count % mean_interval) == 0:
         current_mean_speed = get_mean_speed(speed_list)
         total_speed_list.extend(speed_list)

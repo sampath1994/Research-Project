@@ -1,5 +1,7 @@
 from graph import process_graph
 from speed_by_sort import measure_speed
+import cv2
+
 def calc_vehicle_len(detection_buff, frm, car_len, is_train):
     frames = len(detection_buff)
     frame_1_detec = detection_buff[0]
@@ -32,3 +34,13 @@ def calc_vehicle_len(detection_buff, frm, car_len, is_train):
         return process_graph(cleared_final_detections, frm, car_len)
     else:
         return measure_speed(cleared_final_detections, frm, frames)
+
+
+def count_vehicles(class_id_list, frame):
+    vehicle_ids = [1,2,3,5,7]
+    total_vehicle_count = 0
+    for vehicle in class_id_list:
+        if vehicle in vehicle_ids:
+            total_vehicle_count = total_vehicle_count + 1
+    text = "Vehicle count : " + str(total_vehicle_count)
+    cv2.putText(frame, text, (20, 70), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
