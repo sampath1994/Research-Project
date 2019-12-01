@@ -40,14 +40,14 @@ COLORS = np.random.randint(0, 255, size=(len(LABELS), 3),
 # derive the paths to the YOLO weights and model configuration
 weightsPath = os.path.sep.join([args["yolo"], "yolov3.weights"])
 configPath = os.path.sep.join([args["yolo"], "yolov3.cfg"])
-FRAMES = 8
+FRAMES = 4
 CAR_LEN = 350  # Actual car length in centimeters
 MIN_BB_HEIGHT = 25
 TRAIN = False
-mean_interval = 24  # Frame interval of showing mean speed
+mean_interval = 12  # Frame interval of showing mean speed
 current_mean_speed = 0
 SAVE_VIDEO = False
-FRAME_RATE = 50
+FRAME_RATE = 30
 
 # load our YOLO object detector trained on COCO dataset (80 classes)
 # and determine only the *output* layer names that we need from YOLO

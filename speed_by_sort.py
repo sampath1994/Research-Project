@@ -16,7 +16,7 @@ def measure_real_length(start_row, end_row, w, b, real_car_length):
 def measure_speed(detections, frame, frame_num):
     # frame_num = len(detections[0])
     w, b = metadata()
-    frame_rate = 50
+    frame_rate = 30
     car_real_length = 4    # real car length in meters
     inaccurate_height = 160  # top pixel height abandoned from frame as centroid displacements are inaccurate
     final_speeds = []  # speeds taken through cluster of frames

@@ -7,7 +7,7 @@ def process_graph(cleared_final_detections , frame, car_len):
     frameset_ratios = []
     for detection_set in cleared_final_detections:
         frame_row, ratio = compute_ratio(detection_set, frame, car_len)
-        if ratio > 0 and frame_row > 375:
+        if ratio > 0 and frame_row > 360:
             frameset_ratios.append([frame_row, ratio])
     print(frameset_ratios)
     return frameset_ratios
