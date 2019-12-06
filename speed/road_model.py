@@ -3,6 +3,20 @@ import cv2
 import pybgs as bgs
 from pathlib import Path
 
+def draw_RS_map(md ,w ,h):
+    mx = 0
+    for p in range(w - 1):
+        for r in range(h - 1):
+            if md[r][p] > mx:
+                mx = md[r][p]
+    print(mx)
+    black = np.zeros((h, w, 3), np.uint8)
+    for p in range(w - 1):
+        for r in range(h - 1):
+            black[r][p] = int((md[r][p] / mx) * 255)
+    cv2.imshow('Road_modle', black)
+    cv2.imwrite('road_model.jpg', black)
+    cv2.waitKey()
 
 algorithm = bgs.MultiLayer()
 #video_file = "C:/Users/promod/Desktop/researchPapers/yolo-object-detection/videos/video03.avi"
@@ -17,6 +31,13 @@ while not capture.isOpened():
 #pos_frame = capture.get(cv2.cv.CV_CAP_PROP_POS_FRAMES)
 #pos_frame = capture.get(cv2.CV_CAP_PROP_POS_FRAMES)
 pos_frame = capture.get(1)
+width = int(capture.get(3))
+height = int(capture.get(4))
+
+model = []
+for row in range(height):
+    model.append({x: 0 for x in range(width)})
+
 while True:
     flag, frame = capture.read()
 
@@ -46,6 +67,14 @@ while True:
             cv2.drawContours(frame, hull, i, color, 1, 8)
         #############################################################
 
+        for i in range(width-1):
+            for j in range(height-1):
+                k = img_output[j, i]
+                if k == 255:
+                    model[j][i] = model[j][i] + 1
+
+
+
         cv2.imshow('video', frame)
         cv2.imshow('img_output', img_output)
         cv2.imshow('img_bgmodel', img_bgmodel)
@@ -59,11 +88,14 @@ while True:
         break
 
     if 0xFF & cv2.waitKey(10) == 27:
+        draw_RS_map(model, width, height)
         break
 
     #if capture.get(cv2.cv.CV_CAP_PROP_POS_FRAMES) == capture.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT):
     #if capture.get(cv2.CV_CAP_PROP_POS_FRAMES) == capture.get(cv2.CV_CAP_PROP_FRAME_COUNT):
     #if capture.get(1) == capture.get(cv2.CV_CAP_PROP_FRAME_COUNT):
     #break
-
+draw_RS_map(model, width, height)
 cv2.destroyAllWindows()
+
+
