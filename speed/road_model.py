@@ -89,6 +89,7 @@ while True:
 
     if 0xFF & cv2.waitKey(10) == 27:
         draw_RS_map(model, width, height)
+        # cv2.imwrite('background.jpg', img_bgmodel)
         break
 
     #if capture.get(cv2.cv.CV_CAP_PROP_POS_FRAMES) == capture.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT):
