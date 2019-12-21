@@ -104,6 +104,8 @@ for j in range(height - 1):
             init_mask[j, i] = 255
 
 ########################################
+init_mask = cv2.bitwise_not(init_mask)
+cv2.imwrite('mask.jpg', init_mask)
 cv2.imshow('Thresh', th)
 cv2.imshow('Model', new_img)
 cv2.imshow('Left', left_th)

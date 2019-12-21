@@ -15,6 +15,10 @@ while not capture.isOpened():
 #pos_frame = capture.get(cv2.cv.CV_CAP_PROP_POS_FRAMES)
 #pos_frame = capture.get(cv2.CV_CAP_PROP_POS_FRAMES)
 pos_frame = capture.get(1)
+
+mask = cv2.imread('mask.jpg', cv2.IMREAD_GRAYSCALE)
+rt, msk = cv2.threshold(mask, 30, 255, cv2.THRESH_BINARY)
+
 while True:
     flag, frame = capture.read()
 
@@ -24,6 +28,8 @@ while True:
         #pos_frame = capture.get(cv2.CV_CAP_PROP_POS_FRAMES)
         pos_frame = capture.get(1)
         #print str(pos_frame)+" frames"
+
+        frame = cv2.bitwise_and(frame, frame, mask=msk)
 
         img_output = algorithm.apply(frame)
         img_bgmodel = algorithm.getBackgroundModel()
