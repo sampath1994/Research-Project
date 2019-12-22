@@ -7,6 +7,8 @@ from timeit import default_timer as timer
 algorithm = bgs.MultiLayer()
 video_file = str(Path.cwd().parent / 'videos' / 'video03.avi')
 
+BB_MIN_HEIGHT = 10
+BB_MIN_WIDTH = 10
 capture = cv2.VideoCapture(video_file)
 while not capture.isOpened():
     capture = cv2.VideoCapture(video_file)
@@ -39,7 +41,7 @@ while True:
         img_output = cv2.dilate(img_output, None, iterations=3)  # 3
         img_output = cv2.erode(img_output, None, iterations=1)  # 1
         ############################################################# convex hull drawing
-        im2, contours, hierarchy = cv2.findContours(img_output, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        im2, contours, hierarchy = cv2.findContours(img_output, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         # hull = []
         # for i in range(len(contours)):
             # creating convex hull object for each contour
@@ -51,7 +53,8 @@ while True:
             color = (255, 0, 0)  # blue - color for convex hull
             cv2.drawContours(frame, contours, i, color, 1, 8)
             x, y, w, h = cv2.boundingRect(contours[i])
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            if w > BB_MIN_WIDTH and h > BB_MIN_HEIGHT:
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
         #############################################################
         end = timer()
         print(int(1/(end-start)))  # This FPS represent processing power of algo. this isn't video FPS
