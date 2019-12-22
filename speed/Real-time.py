@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import pybgs as bgs
 from pathlib import Path
+from timeit import default_timer as timer
 
 algorithm = bgs.MultiLayer()
 video_file = str(Path.cwd().parent / 'videos' / 'video03.avi')
@@ -23,6 +24,7 @@ while True:
     flag, frame = capture.read()
 
     if flag:
+        start = timer()
         # cv2.imshow('video', frame)
         #pos_frame = capture.get(cv2.cv.CV_CAP_PROP_POS_FRAMES)
         #pos_frame = capture.get(cv2.CV_CAP_PROP_POS_FRAMES)
@@ -51,7 +53,8 @@ while True:
             x, y, w, h = cv2.boundingRect(contours[i])
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
         #############################################################
-
+        end = timer()
+        print(int(1/(end-start)))  # This FPS represent processing power of algo. this isn't video FPS
         cv2.imshow('video', frame)
         cv2.imshow('img_output', img_output)
         cv2.imshow('img_bgmodel', img_bgmodel)
