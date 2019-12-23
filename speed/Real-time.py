@@ -3,6 +3,7 @@ import cv2
 import pybgs as bgs
 from pathlib import Path
 from timeit import default_timer as timer
+from speed.track import update
 
 algorithm = bgs.MultiLayer()
 video_file = str(Path.cwd().parent / 'videos' / 'video03.avi')
@@ -21,10 +22,10 @@ pos_frame = capture.get(1)
 
 mask = cv2.imread('mask.jpg', cv2.IMREAD_GRAYSCALE)
 rt, msk = cv2.threshold(mask, 30, 255, cv2.THRESH_BINARY)
-
+global_bbs = []
 while True:
     flag, frame = capture.read()
-
+    local_bbs = []
     if flag:
         start = timer()
         # cv2.imshow('video', frame)
@@ -55,7 +56,10 @@ while True:
             x, y, w, h = cv2.boundingRect(contours[i])
             if w > BB_MIN_WIDTH and h > BB_MIN_HEIGHT:
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                local_bbs.append([x, y, w, h, -1, [], -1, 1])
         #############################################################
+        update(global_bbs, local_bbs, 0)
+        global_bbs.append(local_bbs)
         end = timer()
         print(int(1/(end-start)))  # This FPS represent processing power of algo. this isn't video FPS
         cv2.imshow('video', frame)
