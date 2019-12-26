@@ -27,8 +27,11 @@ def update(global_list, local_list, next_id):
         elif zero_count > 1:  # Merge detected
             curr[4] = next_id  # give new track id after merge
             next_id = next_id + 1
+            vehicle_count = 0
             for i in zero_idxs:
                 curr[5].append(previous_local_list[i][4])  # previous track ids of merge put into current bb merge list
+                vehicle_count = vehicle_count + previous_local_list[i][7]
+            curr[7] = vehicle_count  # when merging vehicle counts of previous bbs are added
         elif zero_count == 0:  # completely new bb, give new track id
             curr[4] = next_id
             next_id = next_id + 1

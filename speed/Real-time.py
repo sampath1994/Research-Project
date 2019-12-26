@@ -24,6 +24,7 @@ mask = cv2.imread('mask.jpg', cv2.IMREAD_GRAYSCALE)
 rt, msk = cv2.threshold(mask, 30, 255, cv2.THRESH_BINARY)
 global_bbs = []
 next_id = 0
+total_vehicles = 0
 while True:
     flag, frame = capture.read()
     local_bbs = []
@@ -62,6 +63,9 @@ while True:
         next_id, updated_local_bbs = update(global_bbs, local_bbs, next_id)
         for bb in updated_local_bbs:
             cv2.putText(frame, str(bb[4]), (bb[0], bb[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+            total_vehicles = total_vehicles + bb[7]
+        cv2.putText(frame, str(total_vehicles), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+        total_vehicles = 0
         global_bbs.append(updated_local_bbs)
         end = timer()
         print(int(1/(end-start)))  # This FPS represent processing power of algo. this isn't video FPS
