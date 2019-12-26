@@ -42,7 +42,9 @@ def update(global_list, local_list, next_id):
                 zero_idxs.append(idx)
         if zero_count > 1:  # split detected
             for i in zero_idxs:
-                local_list[i][6] = pre[4]
+                local_list[i][6] = pre[4]  # assign split variable previous bb id
+                local_list[i][4] = next_id  # new track ids after split
+                next_id = next_id + 1
         if zero_count == 0:
             print("track lost", pre[4])
     return next_id, local_list
