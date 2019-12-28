@@ -3,7 +3,7 @@ import cv2
 import pybgs as bgs
 from pathlib import Path
 from timeit import default_timer as timer
-from speed.track import update
+from speed.track import update, get_vehicle_count_in_blob
 
 algorithm = bgs.MultiLayer()
 video_file = str(Path.cwd().parent / 'videos' / 'video03.avi')
@@ -22,6 +22,7 @@ pos_frame = capture.get(1)
 
 mask = cv2.imread('mask.jpg', cv2.IMREAD_GRAYSCALE)
 rt, msk = cv2.threshold(mask, 30, 255, cv2.THRESH_BINARY)
+car_cascade = cv2.CascadeClassifier('cars.xml')
 global_bbs = []
 next_id = 0
 total_vehicles = 0
@@ -38,6 +39,8 @@ while True:
 
         frame = cv2.bitwise_and(frame, frame, mask=msk)
 
+        haar_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
         img_output = algorithm.apply(frame)
         img_bgmodel = algorithm.getBackgroundModel()
 
@@ -49,7 +52,7 @@ while True:
         # for i in range(len(contours)):
             # creating convex hull object for each contour
             # hull.append(cv2.convexHull(contours[i], False))
-
+        cars = car_cascade.detectMultiScale(haar_frame, 1.2, 1)
         # draw contours and hull points
         for i in range(len(contours)):
             color_contours = (0, 255, 0)  # green - color for contours
@@ -58,15 +61,21 @@ while True:
             x, y, w, h = cv2.boundingRect(contours[i])
             if w > BB_MIN_WIDTH and h > BB_MIN_HEIGHT:
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                local_bbs.append([x, y, w, h, -1, [], -1, 1])
-        #############################################################
+                count_in_blob = get_vehicle_count_in_blob(cars, contours[i])
+                v_count = 1
+                if count_in_blob > 1:
+                    v_count = count_in_blob
+                local_bbs.append([x, y, w, h, -1, [], -1, v_count])
+        ############################################################# tracking
         next_id, updated_local_bbs = update(global_bbs, local_bbs, next_id)
         for bb in updated_local_bbs:
-            cv2.putText(frame, str(bb[4]), (bb[0], bb[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+            text = str(bb[4])+" c:"+str(bb[7])
+            cv2.putText(frame, text, (bb[0], bb[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
             total_vehicles = total_vehicles + bb[7]
         cv2.putText(frame, str(total_vehicles), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
         total_vehicles = 0
         global_bbs.append(updated_local_bbs)
+        #############################################################
         end = timer()
         print(int(1/(end-start)))  # This FPS represent processing power of algo. this isn't video FPS
         cv2.imshow('video', frame)

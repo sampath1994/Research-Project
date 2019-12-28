@@ -1,5 +1,6 @@
 import numpy as np
 from speed.bb_distance import get_distance
+import cv2
 
 def update(global_list, local_list, next_id):
     if len(global_list) == 0:  # if there is no previous bb list
@@ -51,3 +52,14 @@ def update(global_list, local_list, next_id):
         if zero_count == 0:
             print("track lost", pre[4])
     return next_id, local_list
+
+
+def get_vehicle_count_in_blob(cars, contour):
+    count = 0
+    for (x, y, w, h) in cars:
+        cx = int(x + (w/2))
+        cy = int(y + (h/2))
+        if cv2.pointPolygonTest(contour, (cx, cy), False) == 1:
+            count = count + 1
+    return count
+
