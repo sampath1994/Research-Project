@@ -26,6 +26,8 @@ car_cascade = cv2.CascadeClassifier('cars.xml')
 global_bbs = []
 next_id = 0
 total_vehicles = 0
+frame_count = 0
+frame_interval = 5  # speed and count calculated for each of this number of frames
 while True:
     flag, frame = capture.read()
     local_bbs = []
@@ -75,7 +77,9 @@ while True:
         cv2.putText(frame, str(total_vehicles), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
         total_vehicles = 0
         global_bbs.append(updated_local_bbs)
-        count_and_speed(global_bbs, 5)
+        frame_count = frame_count + 1
+        if (frame_count % frame_interval) == 0:
+            count_and_speed(global_bbs, frame_interval)
         #############################################################
         end = timer()
         print(int(1/(end-start)))  # This FPS represent processing power of algo. this isn't video FPS
