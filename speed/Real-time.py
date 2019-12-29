@@ -3,7 +3,7 @@ import cv2
 import pybgs as bgs
 from pathlib import Path
 from timeit import default_timer as timer
-from speed.track import update, get_vehicle_count_in_blob
+from speed.track import update, get_vehicle_count_in_blob, count_and_speed
 
 algorithm = bgs.MultiLayer()
 video_file = str(Path.cwd().parent / 'videos' / 'video03.avi')
@@ -75,6 +75,7 @@ while True:
         cv2.putText(frame, str(total_vehicles), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
         total_vehicles = 0
         global_bbs.append(updated_local_bbs)
+        count_and_speed(global_bbs, 5)
         #############################################################
         end = timer()
         print(int(1/(end-start)))  # This FPS represent processing power of algo. this isn't video FPS

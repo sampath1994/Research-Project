@@ -63,3 +63,31 @@ def get_vehicle_count_in_blob(cars, contour):
             count = count + 1
     return count
 
+def count_and_speed(global_bbs, frame_interval):  # pass latest global_bb frames
+    frame_int = frame_interval * -1
+    latest_frames = global_bbs[frame_int:]
+    initial_track_ids = []
+    good_track_ids = []
+    for bb in latest_frames[0]:
+        initial_track_ids.append(bb[4])
+    for track_id in initial_track_ids:
+        count = 0
+        for bb_list in latest_frames[1:]:
+            flag = True
+            for bb in bb_list:
+                if bb[4] == track_id:
+                    count = count + 1
+                    flag = False
+                    break
+            if flag:
+                break
+        if count == (frame_interval - 1):
+            good_track_ids.append(track_id)
+    for id in good_track_ids:
+        start_row = get_bb(latest_frames[0], id)
+        end_row = get_bb(latest_frames[-1], id)
+
+def get_bb(bb_list, track_id):
+    for bb in bb_list:
+        if bb[4] == track_id:
+            return int(bb[1] + (bb[3]/2))
