@@ -63,7 +63,7 @@ def get_vehicle_count_in_blob(cars, contour):
             count = count + 1
     return count
 
-def count_and_speed(global_bbs, frame_interval):  # pass latest global_bb frames
+def count_and_speed(global_bbs, frame_interval, w, b, real_car_length, frame_rate):  # pass latest global_bb frames
     frame_int = frame_interval * -1
     latest_frames = global_bbs[frame_int:]
     initial_track_ids = []
@@ -83,11 +83,28 @@ def count_and_speed(global_bbs, frame_interval):  # pass latest global_bb frames
                 break
         if count == (frame_interval - 1):
             good_track_ids.append(track_id)
+    time = (frame_interval - 1) * (1 / frame_rate)
+    total_speed = 0
+    good_count = 0
     for id in good_track_ids:
         start_row = get_bb(latest_frames[0], id)
         end_row = get_bb(latest_frames[-1], id)
+        if end_row > start_row:
+            distance = measure_real_length(start_row, end_row, w, b, real_car_length)
+            speed = distance / time  # meters per second speed
+            km_speed = speed * 3.6  # kilometers per hour speed
+            total_speed = total_speed + km_speed
+            good_count = good_count + 1
+    ave_speed = 0
+    if good_count > 0:
+        ave_speed = total_speed / good_count
+    return ave_speed
 
 def get_bb(bb_list, track_id):
     for bb in bb_list:
         if bb[4] == track_id:
             return int(bb[1] + (bb[3]/2))
+
+def measure_real_length(start_row, end_row, w, b, real_car_length):
+    distance = (real_car_length / w) * (np.log(w * end_row + b) - np.log(w * start_row + b))
+    return distance

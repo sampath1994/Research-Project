@@ -2,6 +2,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import pandas as pd
 import csv
+import numpy as np
 
 def learn_estimator_model(x, y):
     def input_fn():
@@ -30,7 +31,7 @@ def learn_estimator_model(x, y):
     plt.show()
 
 def test_graph(x,y):
-    predictions = x*0.33848 - 90.2134
+    predictions = x*0.3958584 + 12.075988
     plt.plot(x, y, 'ro', label='Original data')
     plt.plot(x, predictions, label='Fitted line')
     plt.title('Linear Regression Result')
@@ -45,5 +46,12 @@ def write_weights_to_csv(w, b):
 
 if __name__ == "__main__":
     df = pd.read_csv("ratio_data.csv", delimiter=',', header=None)
-    learn_estimator_model(df[0].values, df[1].values)
+    x = []
+    y = []
+    for index, row in df.iterrows():
+        if 100 < row[0] < 200:
+            x.append(row[0])
+            y.append(row[1])
+    learn_estimator_model(np.array(x), np.array(y))
+    # learn_estimator_model(df[0].values, df[1].values)
     # test_graph(df[0].values, df[1].values)

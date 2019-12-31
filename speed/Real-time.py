@@ -2,11 +2,13 @@ import numpy as np
 import cv2
 import pybgs as bgs
 from pathlib import Path
+import pandas as pd
 from timeit import default_timer as timer
 from speed.track import update, get_vehicle_count_in_blob, count_and_speed
 
 algorithm = bgs.MultiLayer()
 video_file = str(Path.cwd().parent / 'videos' / 'video03.avi')
+speed_weight_file = str(Path.cwd().parent / 'weights.csv')
 
 BB_MIN_HEIGHT = 10
 BB_MIN_WIDTH = 10
@@ -28,6 +30,12 @@ next_id = 0
 total_vehicles = 0
 frame_count = 0
 frame_interval = 5  # speed and count calculated for each of this number of frames
+avg_speed = 0
+frame_rate = 60
+df = pd.read_csv(speed_weight_file, delimiter=',', header=None)
+wght = float(df[0].values)
+bis = float(df[1].values)
+real_car_length = 4  # put mean car length in meters
 while True:
     flag, frame = capture.read()
     local_bbs = []
@@ -79,7 +87,8 @@ while True:
         global_bbs.append(updated_local_bbs)
         frame_count = frame_count + 1
         if (frame_count % frame_interval) == 0:
-            count_and_speed(global_bbs, frame_interval)
+            avg_speed = int(count_and_speed(global_bbs, frame_interval, wght, bis, real_car_length, frame_rate))
+        cv2.putText(frame, str(avg_speed) + "kmph", (35, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
         #############################################################
         end = timer()
         print(int(1/(end-start)))  # This FPS represent processing power of algo. this isn't video FPS
