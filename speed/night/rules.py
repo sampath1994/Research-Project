@@ -1,9 +1,11 @@
+import cv2
+
 def is_grouped(bb1, bb2):
     x1, y1, w1, h1 = bb1
     x2, y2, w2, h2 = bb2
     if dh(bb1, bb2) < 5 * max(h1, h2):
         if pv(bb1, bb2) > 0.7:
-            if hr(bb1, bb2) > 0.7:
+            if hr(bb1, bb2) > 0.75:
                 return True
     return False
 
@@ -54,4 +56,14 @@ def get_group_bb(bb1 , bb2):
         brx = bx1
     return tlx, tly, brx, bry
 
-
+def is_vehicle(tlx, tly, brx, bry, contours, bb1_id, bb2_id):
+    width = brx - tlx
+    height = bry - tly
+    ratio = width / height
+    headlight_area = cv2.contourArea(contours[bb1_id]) + cv2.contourArea(contours[bb2_id])
+    group_bb_area = width * height
+    alignment_ratio = headlight_area / group_bb_area
+    if ratio >= 2.0:
+        if 0.1 <= alignment_ratio <= 0.6:
+            return True
+    return False

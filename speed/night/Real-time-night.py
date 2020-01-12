@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from pathlib import Path
 from timeit import default_timer as timer
-from speed.night.rules import is_grouped, get_group_bb
+from speed.night.rules import is_grouped, get_group_bb, is_vehicle
 
 video_file = str(Path.cwd().parent.parent / 'videos' / 'CCTV night video.mp4')
 camera = cv2.VideoCapture(video_file)
@@ -40,6 +40,8 @@ while True:
                     # ry = max(bb[2], itm[2])
                     tlx, tly, brx, bry = get_group_bb(bb[1:], itm[1:])
                     cv2.rectangle(frame, (tlx, tly), (brx, bry), (0, 0, 255), 2)
+                    if is_vehicle(tlx, tly, brx, bry, contours, bb[0], itm[0]):
+                        cv2.rectangle(frame, (tlx, tly), (tlx+5, tly+5), (255, 0, 0), 2)
 
     cv2.imshow("video", frame)
     cv2.imshow("converted", th2)
