@@ -5,7 +5,7 @@ def is_grouped(bb1, bb2):
     x2, y2, w2, h2 = bb2
     if dh(bb1, bb2) < 5 * max(h1, h2):
         if pv(bb1, bb2) > 0.7:
-            if hr(bb1, bb2) > 0.75:
+            if hr(bb1, bb2) > 0.7:
                 return True
     return False
 
