@@ -148,8 +148,7 @@ def speed_by_ref_points(upper_row, lower_row,bbs, upper_dic, lower_dic, frame_id
     else:
         return 0
 
-def load_speed_coord():
-    coord_path = str(Path.cwd() / 'screen-mark' / 'speed_markings.pkl')
+def load_speed_coord(coord_path):
     with open(coord_path, 'rb') as inp:
         coord_obj = pickle.load(inp)
         coord1 = coord_obj[0][1]

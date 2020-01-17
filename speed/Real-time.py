@@ -42,7 +42,7 @@ REF_SPEED_MODE = True
 real_dis = 8  # real distance in Meters, between marked reference points
 frame_thresh = 250  # clean dictionaries older than frame threshold
 if REF_SPEED_MODE:
-    upper_row, lower_row = load_speed_coord()
+    upper_row, lower_row = load_speed_coord(str(Path.cwd() / 'screen-mark' / 'speed_markings.pkl'))
 while True:
     flag, frame = capture.read()
     local_bbs = []
