@@ -4,7 +4,7 @@ import pybgs as bgs
 from pathlib import Path
 import pandas as pd
 from timeit import default_timer as timer
-from speed.track import update, get_vehicle_count_in_blob, count_and_speed
+from speed.track import update, get_vehicle_count_in_blob, count_and_speed, speed_by_ref_points, load_speed_coord
 
 algorithm = bgs.MultiLayer()
 video_file = str(Path.cwd().parent / 'videos' / 'video03.avi')
@@ -36,6 +36,13 @@ df = pd.read_csv(speed_weight_file, delimiter=',', header=None)
 wght = float(df[0].values)
 bis = float(df[1].values)
 real_car_length = 4  # put mean car length in meters
+upper_dic = {}
+lower_dic = {}
+REF_SPEED_MODE = True
+real_dis = 8  # real distance in Meters, between marked reference points
+frame_thresh = 250  # clean dictionaries older than frame threshold
+if REF_SPEED_MODE:
+    upper_row, lower_row = load_speed_coord()
 while True:
     flag, frame = capture.read()
     local_bbs = []
@@ -86,8 +93,16 @@ while True:
         total_vehicles = 0
         global_bbs.append(updated_local_bbs)
         frame_count = frame_count + 1
-        if (frame_count % frame_interval) == 0:
-            avg_speed = int(count_and_speed(global_bbs, frame_interval, wght, bis, real_car_length, frame_rate))
+
+        if REF_SPEED_MODE:
+            ref_speed = speed_by_ref_points(upper_row, lower_row, updated_local_bbs, upper_dic, lower_dic, frame_count, frame_rate, real_dis, frame_thresh)
+            if ref_speed != 0:
+                avg_speed = ref_speed
+            cv2.circle(frame, (10, upper_row), 5, (255, 0, 0), -1)
+            cv2.circle(frame, (10, lower_row), 5, (255, 0, 0), -1)
+        else:
+            if (frame_count % frame_interval) == 0:
+                avg_speed = int(count_and_speed(global_bbs, frame_interval, wght, bis, real_car_length, frame_rate))
         cv2.putText(frame, str(avg_speed) + "kmph", (35, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
         #############################################################
         end = timer()

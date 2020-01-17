@@ -1,6 +1,8 @@
 import numpy as np
 from speed.bb_distance import get_distance
 import cv2
+from pathlib import Path
+import pickle
 
 def update(global_list, local_list, next_id):
     if len(global_list) == 0:  # if there is no previous bb list
@@ -108,3 +110,51 @@ def get_bb(bb_list, track_id):
 def measure_real_length(start_row, end_row, w, b, real_car_length):
     distance = (real_car_length / w) * (np.log(w * end_row + b) - np.log(w * start_row + b))
     return distance
+
+def speed_by_ref_points(upper_row, lower_row,bbs, upper_dic, lower_dic, frame_id, frame_rate, real_dis, frame_thresh):  # this should be called for each frame
+    avg_speed = []
+    del_list = []  # list of keys to be deleted from upper and lower dics
+    for bb in bbs:  # for BBs in latest frame
+        _, y1, _, h, ob_id = bb[:5]
+        cy = int(y1 + h / 2)  # centroid y of BB
+        if cy < upper_row:  # if centroid above upper bound
+            upper_dic[ob_id] = frame_id
+        if cy > lower_row:
+            lower_dic[ob_id] = frame_id
+    for key in upper_dic:  # compare obj_ids at upper and lower rows
+        if key in lower_dic:  # if same obj_id exist in lower row...
+            frame_diff = lower_dic[key] - upper_dic[key]  # then calculate speed using time
+            time = frame_diff * (1 / frame_rate)
+            speed = real_dis / time
+            avg_speed.append(speed)
+            del_list.append(key)
+    for key in upper_dic:
+        if (frame_id - upper_dic[key]) > frame_thresh:
+            del_list.append(key)
+    for key in lower_dic:
+        if (frame_id - lower_dic[key]) > frame_thresh:
+            del_list.append(key)
+    for key in del_list:  # clean upper and lower dics
+        try:
+            del upper_dic[key]
+        except:
+            pass
+        try:
+            del lower_dic[key]
+        except:
+            pass
+    if len(avg_speed) > 0:
+        return int((sum(avg_speed) / len(avg_speed)) * 3.6)
+    else:
+        return 0
+
+def load_speed_coord():
+    coord_path = str(Path.cwd() / 'screen-mark' / 'speed_markings.pkl')
+    with open(coord_path, 'rb') as inp:
+        coord_obj = pickle.load(inp)
+        coord1 = coord_obj[0][1]
+        coord2 = coord_obj[1][1]
+        if coord1 < coord2:
+            return coord1, coord2
+        else:
+            return coord2, coord1
