@@ -157,3 +157,21 @@ def load_speed_coord(coord_path):
             return coord1, coord2
         else:
             return coord2, coord1
+
+def count_by_history(obj_que, latest_objs, history):
+    ttl_vehicle_cont = 0  # total vehicle count in frame history
+    que_len = len(obj_que)
+    if que_len < history:  # if queue smaller fill it with latest frames
+        obj_que.append(latest_objs)
+        return 0
+    elif que_len == history:
+        obj_que.popleft()  # remove the oldest frame
+        for i in latest_objs:  # for each object in latest frame..
+            ob_count = 0
+            for objs in obj_que:  # iterate over queue elements
+                if i in objs:
+                    ob_count = ob_count + 1
+            if ob_count == len(obj_que):  # if same object reside in all frames of history then it's a clean object
+                ttl_vehicle_cont = ttl_vehicle_cont + 1
+        obj_que.append(latest_objs)  # add the latest obj frame to the queue
+        return ttl_vehicle_cont

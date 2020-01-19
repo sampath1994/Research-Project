@@ -3,8 +3,9 @@ import numpy as np
 from pathlib import Path
 from timeit import default_timer as timer
 from speed.night.rules import is_grouped, get_group_bb, is_vehicle
-from speed.track import speed_by_ref_points, load_speed_coord
+from speed.track import speed_by_ref_points, load_speed_coord, count_by_history
 from sort import *
+from collections import deque
 
 video_file = str(Path.cwd().parent.parent / 'videos' / 'CCTV night video.mp4')
 camera = cv2.VideoCapture(video_file)
@@ -20,6 +21,7 @@ lower_dic = {}
 real_dis = 8  # real distance in Meters, between marked reference points
 frame_thresh = 250  # clean dictionaries older than frame threshold
 frame_count = 0
+frm_que = deque()
 if REF_SPEED_MODE:
     upper_row, lower_row = load_speed_coord(str(Path.cwd().parent / 'screen-mark' / 'speed_markings.pkl'))
 while True:
@@ -56,6 +58,7 @@ while True:
     track_bbs_ids = mot_tracker.update(mot_before_np)
     mot_x1, mot_y1, mot_x2, mot_y2, obj_id = [0,0,0,0,0]
     trk_with_wid_hgt = []
+    obj_ids_in_frm = []
     for i in track_bbs_ids:
         mot_x1, mot_y1, mot_x2, mot_y2, obj_id = i
         x1_i = int(mot_x1)
@@ -68,6 +71,7 @@ while True:
         wid = x2_i - x1_i
         higt = y2_i - y1_i
         trk_with_wid_hgt.append([x1_i, y1_i, wid, higt, obj_id])
+        obj_ids_in_frm.append(obj_id)
     frame_count = frame_count + 1
     if REF_SPEED_MODE:
         ref_speed = speed_by_ref_points(upper_row, lower_row, trk_with_wid_hgt, upper_dic, lower_dic, frame_count,
@@ -78,7 +82,9 @@ while True:
         cv2.circle(frame, (10, lower_row), 5, (255, 0, 0), -1)
     else:
         pass
-    cv2.putText(frame, str(avg_speed) + "kmph", (35, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+    cv2.putText(frame, str(avg_speed) + "kmph", (45, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+    vehi_count = count_by_history(frm_que, obj_ids_in_frm, 5)
+    cv2.putText(frame, str(vehi_count) + " :", (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
     cv2.imshow("video", frame)
     cv2.imshow("converted", th2)
     end = timer()
