@@ -2,6 +2,7 @@ import cv2
 from timeit import default_timer as timer
 from sort import *
 from pedestrian.counter import get_roi_contour, is_in_roi, get_count_change, is_empty_roi
+from pathlib import Path
 
     # camera = cv2.VideoCapture("pedestrians.avi")
     # camera.open("pedestrians.avi")
@@ -73,3 +74,27 @@ def ped(frame, ped_cascade, current_objs, cont, frame_count, ped_count_in_roi, m
 
 # camera.release()
 # cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    camera = cv2.VideoCapture(str(Path.cwd().parent / 'videos' / 'pedestrians.avi'))
+    #camera.open("pedestrians.avi")
+    ped_cascade = cv2.CascadeClassifier('cascade3.xml')
+    frm_count = 0
+    # create instance of SORT
+    mot_tracker = Sort()
+    cont = get_roi_contour(int(camera.get(4)), int(camera.get(3)))
+    pre_objs = []
+    current_objs = []
+    ped_count_in_roi = 0
+    while True:
+        (grabbed, framez) = camera.read()
+        ped_count_in_roi, frm_count = ped(framez, ped_cascade, current_objs, cont, frm_count, ped_count_in_roi,
+                                          mot_tracker)
+        k = cv2.waitKey(10)
+        if k == ord('q'):
+            break
+        elif k == ord('s'):
+            cv2.imwrite('pedestrian_still.jpg', frame)
+
+    camera.release()
+    cv2.destroyAllWindows()
