@@ -38,13 +38,39 @@ bis = float(df[1].values)
 real_car_length = 4  # put mean car length in meters
 upper_dic = {}
 lower_dic = {}
-REF_SPEED_MODE = True
+REF_SPEED_MODE = False
+BOTH_CHANNEL = True
 real_dis = 8  # real distance in Meters, between marked reference points
 frame_thresh = 250  # clean dictionaries older than frame threshold
 if REF_SPEED_MODE:
     upper_row, lower_row = load_speed_coord(str(Path.cwd() / 'screen-mark' / 'speed_markings.pkl'))
+
+###########################################################################
+from sort import *
+from pedestrian.counter import get_roi_contour
+from pedestrian.pedestrian_Detection import ped
+
+camera = cv2.VideoCapture(str(Path.cwd().parent / 'videos' / 'pedestrians.avi'))
+# camera.open("pedestrians.avi")
+ped_cascade = cv2.CascadeClassifier(str(Path.cwd().parent / 'pedestrian' / 'cascade3.xml'))
+frm_count = 0
+# # create instance of SORT
+mot_tracker = Sort()
+cont = get_roi_contour(int(camera.get(4)), int(camera.get(3)))
+pre_objs = []
+current_objs = []
+ped_count_in_roi = 0
+
+###########################################################################
+
 while True:
     flag, frame = capture.read()
+    ##############################
+    if BOTH_CHANNEL:
+        if frame_count % 6 == 0:  # MOD value = Higher FPS / Lower FPS
+            (grabbed, framez) = camera.read()
+            ped_count_in_roi, frm_count = ped(framez, ped_cascade, current_objs, cont, frm_count, ped_count_in_roi, mot_tracker)
+    ##############################
     local_bbs = []
     if flag:
         start = timer()
