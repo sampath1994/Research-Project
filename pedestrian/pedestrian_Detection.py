@@ -16,7 +16,7 @@ from pathlib import Path
     # ped_count_in_roi = 0
     # while True:
 
-def ped(frame, ped_cascade, current_objs, cont, frame_count, ped_count_in_roi, mot_tracker):
+def ped(frame, ped_cascade, current_objs, cont, frame_count, ped_count_in_roi, wait_frm_count, mot_tracker):
     start = timer()
     grayvideo = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     cars = ped_cascade.detectMultiScale(grayvideo, 1.1, minNeighbors=4)  # 1.1 #2
@@ -60,12 +60,15 @@ def ped(frame, ped_cascade, current_objs, cont, frame_count, ped_count_in_roi, m
         ped_count_in_roi_return = buff
     if is_empty_roi(pre_objs, current_objs):  # This is also resetting procedure
         ped_count_in_roi_return = 0
+        wait_frm_count_rtn = 0
+    else:
+        wait_frm_count_rtn = wait_frm_count + 1
     cv2.putText(frame, str(ped_count_in_roi_return), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     cv2.imshow("vid", frame)
     end = timer()
     print(int(1 / (end - start)))
 
-    return ped_count_in_roi_return, frame_count_return
+    return ped_count_in_roi_return, frame_count_return, wait_frm_count_rtn
     # k = cv2.waitKey(10)
     # if k == ord('q'):
     #     break
@@ -86,9 +89,12 @@ if __name__ == "__main__":
     pre_objs = []
     current_objs = []
     ped_count_in_roi = 0
+    wait_frame_count = 0
     while True:
         (grabbed, framez) = camera.read()
-        ped_count_in_roi, frm_count = ped(framez, ped_cascade, current_objs, cont, frm_count, ped_count_in_roi,
+        cv2.putText(framez, "Wait time : " + str(wait_frame_count), (15, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                    (0, 255, 0), 2)
+        ped_count_in_roi, frm_count, wait_frame_count = ped(framez, ped_cascade, current_objs, cont, frm_count, ped_count_in_roi,wait_frame_count,
                                           mot_tracker)
         k = cv2.waitKey(10)
         if k == ord('q'):

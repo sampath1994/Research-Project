@@ -60,7 +60,7 @@ cont = get_roi_contour(int(camera.get(4)), int(camera.get(3)))
 pre_objs = []
 current_objs = []
 ped_count_in_roi = 0
-
+wait_frame_count = 0
 ###########################################################################
 
 while True:
@@ -69,7 +69,7 @@ while True:
     if BOTH_CHANNEL:
         if frame_count % 6 == 0:  # MOD value = Higher FPS / Lower FPS
             (grabbed, framez) = camera.read()
-            ped_count_in_roi, frm_count = ped(framez, ped_cascade, current_objs, cont, frm_count, ped_count_in_roi, mot_tracker)
+            ped_count_in_roi, frm_count, wait_frame_count = ped(framez, ped_cascade, current_objs, cont, frm_count, ped_count_in_roi, wait_frame_count, mot_tracker)
     ##############################
     local_bbs = []
     if flag:
@@ -116,7 +116,6 @@ while True:
             cv2.putText(frame, text, (bb[0], bb[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
             total_vehicles = total_vehicles + bb[7]
         cv2.putText(frame, str(total_vehicles), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-        total_vehicles = 0
         global_bbs.append(updated_local_bbs)
         frame_count = frame_count + 1
 
@@ -131,11 +130,21 @@ while True:
                 avg_speed = int(count_and_speed(global_bbs, frame_interval, wght, bis, real_car_length, frame_rate))
         cv2.putText(frame, str(avg_speed) + "kmph", (35, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
         #############################################################
+        display_out = np.zeros((300, 350, 3), dtype="uint8")
+        cv2.putText(display_out, "frame count: "+str(frame_count), (15, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        cv2.putText(display_out, "Average speed : " + str(avg_speed) + "kmph", (15, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                    (0, 255, 0), 2)
+        cv2.putText(display_out, "Vehicle count : " + str(total_vehicles) , (15, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                    (0, 255, 0), 2)
+        total_vehicles = 0
+        cv2.putText(display_out, "Wait time : " + str(wait_frame_count), (15, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                    (0, 255, 0), 2)
         end = timer()
         print(int(1/(end-start)))  # This FPS represent processing power of algo. this isn't video FPS
         cv2.imshow('video', frame)
         cv2.imshow('img_output', img_output)
         cv2.imshow('img_bgmodel', img_bgmodel)
+        cv2.imshow('Output Display', display_out)
 
     else:
         #capture.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, pos_frame-1)
