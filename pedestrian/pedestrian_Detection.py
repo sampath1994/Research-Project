@@ -3,6 +3,7 @@ from timeit import default_timer as timer
 from sort import *
 from pedestrian.counter import get_roi_contour, is_in_roi, get_count_change, is_empty_roi
 from pathlib import Path
+import math
 
     # camera = cv2.VideoCapture("pedestrians.avi")
     # camera.open("pedestrians.avi")
@@ -16,7 +17,20 @@ from pathlib import Path
     # ped_count_in_roi = 0
     # while True:
 
-def ped(frame, ped_cascade, current_objs, cont, frame_count, ped_count_in_roi, wait_frm_count, mot_tracker):
+def dis(x1,y1,x2,y2):
+    return math.hypot(x2 - x1, y2 - y1)
+
+def at_least_one_standing(pre, curr, thr):
+    for ob in pre:
+        if ob[1] == 'i':
+            for ob2 in curr:
+                if ob2[0] == ob[0]:
+                    if ob2[1] == 'i':
+                        if dis(ob2[2], ob2[3], ob[2], ob[3]) < thr:
+                            return True
+    return False
+
+def ped(frame, ped_cascade, current_objs, cont, frame_count, ped_count_in_roi, wait_frm_count, mot_tracker, thresh):
     start = timer()
     grayvideo = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     cars = ped_cascade.detectMultiScale(grayvideo, 1.1, minNeighbors=4)  # 1.1 #2
@@ -47,7 +61,7 @@ def ped(frame, ped_cascade, current_objs, cont, frame_count, ped_count_in_roi, w
         cen_x = x1_i + wid / 2
         cen_y = y1_i + higt / 2
         if is_in_roi(cen_x, cen_y, cont[0]):
-            current_objs.append((obj_id, 'i'))
+            current_objs.append((obj_id, 'i', cen_x, cen_y))
         else:
             current_objs.append((obj_id, 'o'))
     frame_count_return = frame_count + 1
@@ -62,7 +76,10 @@ def ped(frame, ped_cascade, current_objs, cont, frame_count, ped_count_in_roi, w
         ped_count_in_roi_return = 0
         wait_frm_count_rtn = 0
     else:
-        wait_frm_count_rtn = wait_frm_count + 1
+        if at_least_one_standing(pre_objs, current_objs, thresh):
+            wait_frm_count_rtn = wait_frm_count + 1
+        else:
+            wait_frm_count_rtn = 0
     cv2.putText(frame, str(ped_count_in_roi_return), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     cv2.imshow("vid", frame)
     end = timer()
@@ -95,7 +112,7 @@ if __name__ == "__main__":
         cv2.putText(framez, "Wait time : " + str(wait_frame_count), (15, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                     (0, 255, 0), 2)
         ped_count_in_roi, frm_count, wait_frame_count = ped(framez, ped_cascade, current_objs, cont, frm_count, ped_count_in_roi,wait_frame_count,
-                                          mot_tracker)
+                                          mot_tracker, 5)
         k = cv2.waitKey(10)
         if k == ord('q'):
             break
