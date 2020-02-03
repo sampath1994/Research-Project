@@ -48,3 +48,10 @@ def is_empty_roi(objs1, objs2):
         return True
     else:
         return False
+
+def get_count_in_roi(objs):
+    count = 0
+    for ob in objs:
+        if ob[1] == 'i':
+            count = count + 1
+    return count

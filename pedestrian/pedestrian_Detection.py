@@ -1,7 +1,7 @@
 import cv2
 from timeit import default_timer as timer
 from sort import *
-from pedestrian.counter import get_roi_contour, is_in_roi, get_count_change, is_empty_roi
+from pedestrian.counter import get_roi_contour, is_in_roi, get_count_change, is_empty_roi, get_count_in_roi
 from pathlib import Path
 import math
 
@@ -72,6 +72,10 @@ def ped(frame, ped_cascade, current_objs, cont, frame_count, ped_count_in_roi, w
         ped_count_in_roi_return = 0
     else:
         ped_count_in_roi_return = buff
+        cnt_in_roi = get_count_in_roi(current_objs)
+        if buff < cnt_in_roi:
+            ped_count_in_roi_return = cnt_in_roi
+
     if is_empty_roi(pre_objs, current_objs):  # This is also resetting procedure
         ped_count_in_roi_return = 0
         wait_frm_count_rtn = 0
