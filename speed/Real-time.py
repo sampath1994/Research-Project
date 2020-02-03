@@ -140,6 +140,8 @@ while True:
         total_vehicles = 0
         cv2.putText(display_out, "Wait time : " + str(wait_frame_count), (15, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                     (0, 255, 0), 2)
+        cv2.putText(display_out, "Pedestrian count : " + str(ped_count_in_roi), (15, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                    (0, 255, 0), 2)
         end = timer()
         print(int(1/(end-start)))  # This FPS represent processing power of algo. this isn't video FPS
         cv2.imshow('video', frame)
