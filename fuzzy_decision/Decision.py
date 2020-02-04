@@ -200,7 +200,7 @@ def get_decision(simulation, vehicle_count, pedestrian_count, avg_vehicle_speed,
         return False
 
     if avg_vehicle_speed == 0:
-        avg_vehicle_speed_buff = 1
+        avg_vehicle_speed_buff = 10
     elif avg_vehicle_speed >= 60:
         avg_vehicle_speed_buff = 59
     else:
@@ -230,7 +230,11 @@ def get_decision(simulation, vehicle_count, pedestrian_count, avg_vehicle_speed,
 
     if pedestrian_wait_time > 5 and pedestrian_wait_time < 40:
         start = timer()
-        simulation.compute()
+        try:
+            simulation.compute()
+        except Exception as e:
+            print("[Error log]: ", vehicle_count_buff, pedestrian_count_buff, avg_vehicle_speed_buff, pedestrian_wait_time_buff)
+            print(repr(e))
         end = timer()
         print(end - start)
         out_val = simulation.output['signal']
@@ -257,7 +261,7 @@ if __name__ == "__main__":
                     (12, 20, 45, 25),  # t=25
                     (10, 20, 45, 30),  # t=30
                     (8, 22, 50, 38),
-                    (10, 1, 40, 20)]  # t=38
+                    (1, 6, 10, 1)]  # t=38
 
     for i in traffic_data:
         print(get_decision(sim, i[0], i[1], i[2], i[3], 4))  # requirement_threshold taken as 4
