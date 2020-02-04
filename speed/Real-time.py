@@ -5,6 +5,7 @@ from pathlib import Path
 import pandas as pd
 from timeit import default_timer as timer
 from speed.track import update, get_vehicle_count_in_blob, count_and_speed, speed_by_ref_points, load_speed_coord
+from fuzzy_decision.Decision import init_fuzzy_system, get_decision
 
 algorithm = bgs.MultiLayer()
 video_file = str(Path.cwd().parent / 'videos' / 'video03.avi')
@@ -63,6 +64,9 @@ ped_count_in_roi = 0
 wait_frame_count = 0
 standing_thresh = 5
 ###########################################################################
+
+sim = init_fuzzy_system()
+requirement_threshold = 4
 
 while True:
     flag, frame = capture.read()
@@ -131,6 +135,9 @@ while True:
                 avg_speed = int(count_and_speed(global_bbs, frame_interval, wght, bis, real_car_length, frame_rate))
         cv2.putText(frame, str(avg_speed) + "kmph", (35, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
         #############################################################
+
+        ped_green_light = get_decision(sim, total_vehicles, ped_count_in_roi, avg_speed, wait_frame_count, requirement_threshold)
+
         display_out = np.zeros((300, 350, 3), dtype="uint8")
         cv2.putText(display_out, "frame count: "+str(frame_count), (15, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
         cv2.putText(display_out, "Average speed : " + str(avg_speed) + "kmph", (15, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
@@ -142,6 +149,8 @@ while True:
                     (0, 255, 0), 2)
         cv2.putText(display_out, "Pedestrian count : " + str(ped_count_in_roi), (15, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                     (0, 255, 0), 2)
+        cv2.putText(display_out, "Pedestrian: " + str(ped_green_light), (15, 140), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                        (0, 255, 0), 2)
         end = timer()
         print(int(1/(end-start)))  # This FPS represent processing power of algo. this isn't video FPS
         cv2.imshow('video', frame)
