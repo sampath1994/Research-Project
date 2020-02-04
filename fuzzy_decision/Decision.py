@@ -187,10 +187,46 @@ def init_fuzzy_system():
 
 # return True if pedestrian should get green light.
 def get_decision(simulation, vehicle_count, pedestrian_count, avg_vehicle_speed, pedestrian_wait_time, requirnment_thresh):
-    simulation.input['vehicle'] = vehicle_count
-    simulation.input['pedestrian'] = pedestrian_count
-    simulation.input['vSpeed'] = avg_vehicle_speed
-    simulation.input['WaitingTime'] = pedestrian_wait_time
+    vehicle_count_buff = 1
+    pedestrian_count_buff = 1
+    avg_vehicle_speed_buff = 1
+    pedestrian_wait_time_buff = 1
+    # Edge case handling
+    if vehicle_count == 0 and pedestrian_count > 0:
+        return True
+    if vehicle_count == 0 and pedestrian_count == 0:  # general rule in streets
+        return False
+    if pedestrian_count == 0:
+        return False
+
+    if avg_vehicle_speed == 0:
+        avg_vehicle_speed_buff = 1
+    elif avg_vehicle_speed >= 60:
+        avg_vehicle_speed_buff = 59
+    else:
+        avg_vehicle_speed_buff = avg_vehicle_speed
+
+    if pedestrian_wait_time == 0:
+        pedestrian_wait_time_buff = 1
+    elif pedestrian_wait_time >= 60:
+        pedestrian_wait_time_buff = 59
+    else:
+        pedestrian_wait_time_buff = pedestrian_wait_time
+
+    if vehicle_count >= 35:
+        vehicle_count_buff = 34
+    else:
+        vehicle_count_buff = vehicle_count
+
+    if pedestrian_count >= 25:
+        pedestrian_count_buff = 24
+    else:
+        pedestrian_count_buff = pedestrian_count
+
+    simulation.input['vehicle'] = vehicle_count_buff
+    simulation.input['pedestrian'] = pedestrian_count_buff
+    simulation.input['vSpeed'] = avg_vehicle_speed_buff
+    simulation.input['WaitingTime'] = pedestrian_wait_time_buff
 
     if pedestrian_wait_time > 5 and pedestrian_wait_time < 40:
         start = timer()
@@ -220,7 +256,8 @@ if __name__ == "__main__":
                     (12, 15, 40, 20),  # t=20
                     (12, 20, 45, 25),  # t=25
                     (10, 20, 45, 30),  # t=30
-                    (8, 22, 50, 38)]  # t=38
+                    (8, 22, 50, 38),
+                    (10, 1, 40, 20)]  # t=38
 
     for i in traffic_data:
         print(get_decision(sim, i[0], i[1], i[2], i[3], 4))  # requirement_threshold taken as 4
