@@ -152,7 +152,7 @@ while True:
         cv2.putText(display_out, "Pedestrian: " + str(ped_green_light), (15, 140), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                         (0, 255, 0), 2)
         end = timer()
-        print(int(1/(end-start)))  # This FPS represent processing power of algo. this isn't video FPS
+        print("FPS: ", int(1/(end-start)))  # This FPS represent processing power of algo. this isn't video FPS
         cv2.imshow('video', frame)
         cv2.imshow('img_output', img_output)
         cv2.imshow('img_bgmodel', img_bgmodel)
