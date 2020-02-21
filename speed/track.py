@@ -56,13 +56,29 @@ def update(global_list, local_list, next_id):
     return next_id, local_list
 
 
-def get_vehicle_count_in_blob(cars, contour):
+def get_vehicle_count_in_blob(cars, contour, frm=None):
+    CONV_DEF = False
     count = 0
     for (x, y, w, h) in cars:
         cx = int(x + (w/2))
         cy = int(y + (h/2))
         if cv2.pointPolygonTest(contour, (cx, cy), False) == 1:
             count = count + 1
+    if CONV_DEF and count < 2:
+        con_hull = cv2.convexHull(contour,returnPoints = False)
+        defects = cv2.convexityDefects(contour, con_hull)
+        rect = cv2.minAreaRect(contour)
+        wid = rect[1][0]
+        if defects is not None:
+            for defect in defects:
+                d = defect[0][3]
+                def_point = defect[0][2]
+                xy = contour[def_point]
+                d = d / 256.0
+                if (d / (wid/2)) > 0.9:
+                    count = 2
+                    #  cv2.putText(frm, "D", (xy[0][0], xy[0][1]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+                    #  print("Con - Defect")
     return count
 
 def count_and_speed(global_bbs, frame_interval, w, b, real_car_length, frame_rate):  # pass latest global_bb frames
