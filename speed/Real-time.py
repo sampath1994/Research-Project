@@ -41,7 +41,7 @@ upper_dic = {}
 lower_dic = {}
 REF_SPEED_MODE = False
 BOTH_CHANNEL = True
-real_dis = 8  # real distance in Meters, between marked reference points
+real_dis = 15  # real distance in Meters, between marked reference points
 frame_thresh = 250  # clean dictionaries older than frame threshold
 if REF_SPEED_MODE:
     upper_row, lower_row = load_speed_coord(str(Path.cwd() / 'screen-mark' / 'speed_markings.pkl'))
@@ -166,8 +166,14 @@ while True:
         cv2.waitKey(1000)
         break
 
-    if 0xFF & cv2.waitKey(10) == 27:
+    #if frame_count % 60 == 0:
+        #print("take values!")
+
+    k = cv2.waitKey(10)
+    if k == ord('q'):
         break
+    elif k == ord('s'):
+        cv2.imwrite('day_still.jpg', frame)
 
     #if capture.get(cv2.cv.CV_CAP_PROP_POS_FRAMES) == capture.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT):
     #if capture.get(cv2.CV_CAP_PROP_POS_FRAMES) == capture.get(cv2.CV_CAP_PROP_FRAME_COUNT):

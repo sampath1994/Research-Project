@@ -3,7 +3,8 @@ import pickle
 import numpy as np
 #img = np.zeros((512,512,3), np.uint8)
 #img = cv2.imread("C:\\Users\\promod\\Desktop\\researchPapers\\yolo-object-detection\\speed\\background.jpg")
-img = cv2.imread("C:\\Users\\promod\\Desktop\\researchPapers\\yolo-object-detection\\speed\\night\\night_still.jpg")
+#img = cv2.imread("C:\\Users\\promod\\Desktop\\researchPapers\\yolo-object-detection\\speed\\night\\night_still.jpg")
+img = cv2.imread("C:\\Users\\promod\\Desktop\\researchPapers\\yolo-object-detection\\speed\\day_still.jpg")
 coordinates = []
 def draw_circle(event, x, y, flags, param):
     # global mouseX,mouseY

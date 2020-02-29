@@ -94,6 +94,8 @@ while True:
         break
     elif k == ord('s'):
         cv2.imwrite('night_still.jpg', frame)
+    #if frame_count % 60 == 0:
+        #print("take values!")
 camera.release()
 cv2.destroyAllWindows()
 
