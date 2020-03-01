@@ -51,7 +51,7 @@ def init_fuzzy_system():
     # plt.show()
 
 
-    rule1 = ctrl.Rule(vehicle['low'] & WaitingTime['low'] & pedestrian['low'] & vSpeed['low'], signal['on'])
+    rule1 = ctrl.Rule(vehicle['low'] & WaitingTime['low'] & pedestrian['low'] & vSpeed['low'], signal['off'])
     rule2 = ctrl.Rule(vehicle['medium'] & WaitingTime['low'] & pedestrian['low'] & vSpeed['low'], signal['off'])
     rule3 = ctrl.Rule(vehicle['high'] & WaitingTime['low'] & pedestrian['low'] & vSpeed['low'], signal['off'])
     rule4 = ctrl.Rule(vehicle['low'] & WaitingTime['medium'] & pedestrian['low'] & vSpeed['low'], signal['on'])
@@ -158,7 +158,7 @@ def init_fuzzy_system():
                                       rule25, rule26, rule27,
 
                                       rule28, rule29, rule30,
-                                      rule31, rule32, rule32,
+                                      rule31, rule32, rule33,
                                       rule34, rule35, rule36,
 
                                       rule37, rule38, rule39,
