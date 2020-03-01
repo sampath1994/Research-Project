@@ -250,10 +250,32 @@ def get_decision(simulation, vehicle_count, pedestrian_count, avg_vehicle_speed,
         print("Now pedestrians can cross the road")
         return True
 
-
+def get_graph(arr_v, arr_p, arr_s, arr_w, arr_decision):
+    # labels = ['vehicle_count', 'pedestrian_count', 'avg_speed', 'waiting_time']
+    Tot_count = []
+    for i in range(len(arr_v)):
+        Tot_count.append(i)
+    plt.plot(Tot_count,arr_v,'r',label="vehicle_count")
+    plt.plot(Tot_count,arr_p,'b',label="pedestrian_count")
+    plt.plot(Tot_count,arr_s,'g',label="avg_speed")
+    plt.plot(Tot_count,arr_w,'m',label="waiting_time")
+    plt.plot(Tot_count,arr_decision,label="signal")
+    plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',ncol=3, mode="expand", borderaxespad=0.)
+    plt.ylim(bottom=0)
+    plt.xlim(left=0)
+    plt.show()
 
 if __name__ == "__main__":
     sim = init_fuzzy_system()
+
+    arr_v = []
+    arr_p = []
+    arr_s = []
+    arr_w = []
+    arr_decision = []
+    Tot_count = []
+    count = 0
+
     #               vehicle_count (35), pedestrian_count (25), avg_vehicle_speed (60), pedestrian_wait_time (60)
     traffic_data = [(30, 5, 25, 5),   # take time as t,  t=5
                     (10, 15, 55, 10),  # t=10
@@ -264,5 +286,17 @@ if __name__ == "__main__":
                     (1, 6, 10, 1)]  # t=38
 
     for i in traffic_data:
-        print(get_decision(sim, i[0], i[1], i[2], i[3], 4))  # requirement_threshold taken as 4
+        arr_v.append(i[0])
+        arr_p.append(i[1])
+        arr_s.append(i[2])
+        arr_w.append(i[3])
+        Tot_count.append(count)
+        decs = get_decision(sim, i[0], i[1], i[2], i[3], 4)
+        count = count + 1
+        print(decs)  # requirement_threshold taken as 4
         # print True if pedestrians get green light
+        if decs:
+            arr_decision.append(5)
+        else:
+            arr_decision.append(0)
+    get_graph(arr_v, arr_p, arr_s, arr_w, arr_decision)

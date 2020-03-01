@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd
 from timeit import default_timer as timer
 from speed.track import update, get_vehicle_count_in_blob, count_and_speed, speed_by_ref_points, load_speed_coord
-from fuzzy_decision.Decision import init_fuzzy_system, get_decision
+from fuzzy_decision.Decision import init_fuzzy_system, get_decision, get_graph
 
 algorithm = bgs.MultiLayer()
 video_file = str(Path.cwd().parent / 'videos' / 'video03.avi')
@@ -64,7 +64,13 @@ ped_count_in_roi = 0
 wait_frame_count = 0
 standing_thresh = 5
 ###########################################################################
-
+arr_v = []
+arr_p = []
+arr_s = []
+arr_w = []
+arr_decision = []
+Tot_count = []
+###########################################################################
 sim = init_fuzzy_system()
 requirement_threshold = 4
 
@@ -144,6 +150,9 @@ while True:
                     (0, 255, 0), 2)
         cv2.putText(display_out, "Vehicle count : " + str(total_vehicles) , (15, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                     (0, 255, 0), 2)
+        #######################################
+        arr_v.append(total_vehicles)
+        #######################################
         total_vehicles = 0
         cv2.putText(display_out, "Wait time : " + str(wait_frame_count), (15, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                     (0, 255, 0), 2)
@@ -151,6 +160,15 @@ while True:
                     (0, 255, 0), 2)
         cv2.putText(display_out, "Pedestrian: " + str(ped_green_light), (15, 140), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                         (0, 255, 0), 2)
+        ########################################
+        arr_p.append(ped_count_in_roi)
+        arr_s.append(avg_speed)
+        arr_w.append(wait_frame_count)
+        if ped_green_light:
+            arr_decision.append(5)
+        else:
+            arr_decision.append(0)
+        ########################################
         end = timer()
         print("FPS: ", int(1/(end-start)))  # This FPS represent processing power of algo. this isn't video FPS
         cv2.imshow('video', frame)
@@ -179,5 +197,5 @@ while True:
     #if capture.get(cv2.CV_CAP_PROP_POS_FRAMES) == capture.get(cv2.CV_CAP_PROP_FRAME_COUNT):
     #if capture.get(1) == capture.get(cv2.CV_CAP_PROP_FRAME_COUNT):
     #break
-
+get_graph(arr_v, arr_p, arr_s, arr_w, arr_decision)
 cv2.destroyAllWindows()
