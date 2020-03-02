@@ -246,7 +246,7 @@ def get_decision(simulation, vehicle_count, pedestrian_count, avg_vehicle_speed,
     elif pedestrian_wait_time <= 5:
         print("Pedestrians cannot cross the road, vehicles are moving")
         return False
-    elif pedestrian_wait_time > 40:
+    elif pedestrian_wait_time >= 40:
         print("Now pedestrians can cross the road")
         return True
 
@@ -280,10 +280,10 @@ if __name__ == "__main__":
     traffic_data = [(30, 5, 25, 5),   # take time as t,  t=5
                     (10, 15, 55, 10),  # t=10
                     (12, 15, 40, 20),  # t=20
-                    (12, 20, 45, 25),  # t=25
-                    (10, 20, 45, 30),  # t=30
-                    (8, 22, 50, 38),
-                    (1, 6, 10, 1)]  # t=38
+                    (1, 20, 10, 25),  # t=25
+                    (10, 1, 0, 5),  # t=30
+                    (2, 2, 0, 10),
+                    (1, 1, 0, 8)]  # t=38
 
     for i in traffic_data:
         arr_v.append(i[0])
