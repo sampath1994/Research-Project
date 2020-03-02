@@ -191,3 +191,22 @@ def count_by_history(obj_que, latest_objs, history):
                 ttl_vehicle_cont = ttl_vehicle_cont + 1
         obj_que.append(latest_objs)  # add the latest obj frame to the queue
         return ttl_vehicle_cont
+
+def update_cascade_bb(arry, current_count):
+    ar_len = len(arry)
+    if ar_len == 3:  # checking back for 3 frames of cascade detections
+        for i in range(ar_len-1):
+            arry[i] = arry[i+1]
+        arry[ar_len-1] = current_count
+    else:
+        arry.append(current_count)
+
+def is_full_congestion(cascade_bb_counts):
+    buff_cnt = 0
+    for bb_ct in cascade_bb_counts:
+        if bb_ct > 4:  # each frame should hold at least 4 bounding boxes
+            buff_cnt = buff_cnt + 1
+    if buff_cnt > 3:
+        return True
+    else:
+        return False

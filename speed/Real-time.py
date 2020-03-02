@@ -4,7 +4,7 @@ import pybgs as bgs
 from pathlib import Path
 import pandas as pd
 from timeit import default_timer as timer
-from speed.track import update, get_vehicle_count_in_blob, count_and_speed, speed_by_ref_points, load_speed_coord
+from speed.track import update, get_vehicle_count_in_blob, count_and_speed, speed_by_ref_points, load_speed_coord, update_cascade_bb, is_full_congestion
 from fuzzy_decision.Decision import init_fuzzy_system, get_decision, get_graph
 
 algorithm = bgs.MultiLayer()
@@ -43,6 +43,7 @@ REF_SPEED_MODE = False
 BOTH_CHANNEL = True
 real_dis = 15  # real distance in Meters, between marked reference points
 frame_thresh = 250  # clean dictionaries older than frame threshold
+cascade_bb_counts = []  # haar cascade detections for few frames
 if REF_SPEED_MODE:
     upper_row, lower_row = load_speed_coord(str(Path.cwd() / 'screen-mark' / 'speed_markings.pkl'))
 
@@ -152,6 +153,12 @@ while True:
                     (0, 255, 0), 2)
         #######################################
         arr_v.append(total_vehicles)
+        update_cascade_bb(cascade_bb_counts, len(cars))
+        if total_vehicles == 0:
+            if is_full_congestion(cascade_bb_counts):
+                print("!!High congestion detected!!")
+            else:
+                print("Empty road")
         #######################################
         total_vehicles = 0
         cv2.putText(display_out, "Wait time : " + str(wait_frame_count), (15, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
