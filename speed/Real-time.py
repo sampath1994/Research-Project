@@ -80,8 +80,10 @@ while True:
     ##############################
     if BOTH_CHANNEL:
         if frame_count % 6 == 0:  # MOD value = Higher FPS / Lower FPS
-            (grabbed, framez) = camera.read()
-            ped_count_in_roi, frm_count, wait_frame_count = ped(framez, ped_cascade, current_objs, cont, frm_count, ped_count_in_roi, wait_frame_count, mot_tracker, standing_thresh)
+            for z in range(1):
+                (grabbed, framez) = camera.read()
+                if grabbed:
+                    ped_count_in_roi, frm_count, wait_frame_count = ped(framez, ped_cascade, current_objs, cont, frm_count, ped_count_in_roi, wait_frame_count, mot_tracker, standing_thresh)
     ##############################
     local_bbs = []
     if flag:
