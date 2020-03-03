@@ -6,9 +6,22 @@ import pandas as pd
 from timeit import default_timer as timer
 from speed.track import update, get_vehicle_count_in_blob, count_and_speed, speed_by_ref_points, load_speed_coord, update_cascade_bb, is_full_congestion
 from fuzzy_decision.Decision import init_fuzzy_system, get_decision, get_graph
+import argparse
 
+ARGS = False
+ap = argparse.ArgumentParser()
+if ARGS:
+    ap.add_argument("-i1", "--input1", required=True)
+    ap.add_argument("-i2", "--input2", required=True)
+    ap.add_argument("-i3", "--input3", required=True)
+    ap.add_argument("-i4", "--input4", required=True)
+    ap.add_argument("-i5", "--input5", required=True)
+    ap.add_argument("-i6", "--input6", required=True)
+    args = vars(ap.parse_args())
 algorithm = bgs.MultiLayer()
 video_file = str(Path.cwd().parent / 'videos' / 'video03.avi')
+if ARGS:
+    video_file = args["input1"]
 speed_weight_file = str(Path.cwd().parent / 'weights.csv')
 
 BB_MIN_HEIGHT = 10
@@ -47,6 +60,20 @@ cascade_bb_counts = []  # haar cascade detections for few frames
 start_decision_flg = False  # flag true for defined time to take decision
 decision_count = 0
 decision_ok_count = 0
+vehicle_frms_per_round = 6
+ped_frms_per_round = 1
+Mask = True
+if ARGS:
+    if args["input3"] == "yes":
+        Mask = True
+    else:
+        Mask = False
+    vehicle_frms_per_round = int(args["input4"])
+    ped_frms_per_round = int(args["input5"])
+    if args["input6"] == "yes":
+        REF_SPEED_MODE = True
+    else:
+        REF_SPEED_MODE = False
 if REF_SPEED_MODE:
     upper_row, lower_row = load_speed_coord(str(Path.cwd() / 'screen-mark' / 'speed_markings.pkl'))
 
@@ -55,7 +82,10 @@ from sort import *
 from pedestrian.counter import get_roi_contour
 from pedestrian.pedestrian_Detection import ped
 
-camera = cv2.VideoCapture(str(Path.cwd().parent / 'videos' / 'pedestrians.avi'))
+ped_file = str(Path.cwd().parent / 'videos' / 'pedestrians.avi')
+if ARGS:
+    ped_file = args["input2"]
+camera = cv2.VideoCapture(ped_file)
 # camera.open("pedestrians.avi")
 ped_cascade = cv2.CascadeClassifier(str(Path.cwd().parent / 'pedestrian' / 'cascade3.xml'))
 frm_count = 0
@@ -82,8 +112,8 @@ while True:
     flag, frame = capture.read()
     ##############################
     if BOTH_CHANNEL:
-        if frame_count % 6 == 0:  # MOD value = Higher FPS / Lower FPS
-            for z in range(1):
+        if frame_count % vehicle_frms_per_round == 0:  # MOD value = Higher FPS / Lower FPS
+            for z in range(ped_frms_per_round):
                 (grabbed, framez) = camera.read()
                 if grabbed:
                     ped_count_in_roi, frm_count, wait_frame_count = ped(framez, ped_cascade, current_objs, cont, frm_count, ped_count_in_roi, wait_frame_count, mot_tracker, standing_thresh)
@@ -97,7 +127,8 @@ while True:
         pos_frame = capture.get(1)
         #print str(pos_frame)+" frames"
 
-        frame = cv2.bitwise_and(frame, frame, mask=msk)
+        if Mask:
+            frame = cv2.bitwise_and(frame, frame, mask=msk)
 
         haar_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
