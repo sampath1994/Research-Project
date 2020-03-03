@@ -44,6 +44,9 @@ BOTH_CHANNEL = True
 real_dis = 15  # real distance in Meters, between marked reference points
 frame_thresh = 250  # clean dictionaries older than frame threshold
 cascade_bb_counts = []  # haar cascade detections for few frames
+start_decision_flg = False  # flag true for defined time to take decision
+decision_count = 0
+decision_ok_count = 0
 if REF_SPEED_MODE:
     upper_row, lower_row = load_speed_coord(str(Path.cwd() / 'screen-mark' / 'speed_markings.pkl'))
 
@@ -175,8 +178,21 @@ while True:
         arr_w.append(wait_frame_count)
         if ped_green_light:
             arr_decision.append(5)
+            start_decision_flg = True
         else:
             arr_decision.append(0)
+        if start_decision_flg:
+            decision_count = decision_count + 1
+            if ped_green_light:
+                decision_ok_count = decision_ok_count + 1
+        if decision_count > (30):  # frame_rate/4
+            percentage = (decision_ok_count / decision_count)*100
+            if percentage > 70:
+                print("!Green light for pedestrians!")
+                break
+            decision_count = 0
+            decision_ok_count = 0
+            start_decision_flg = False
         ########################################
         end = timer()
         print("FPS: ", int(1/(end-start)))  # This FPS represent processing power of algo. this isn't video FPS
