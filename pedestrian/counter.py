@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import pickle
 from pathlib import Path
+import math
 
 def is_in_roi(ped_x, ped_y, roi_cont):
     # check given pedestrian coordinate in the ROI
@@ -55,3 +56,23 @@ def get_count_in_roi(objs):
         if ob[1] == 'i':
             count = count + 1
     return count
+
+def dis(x1,y1,x2,y2):
+    return math.hypot(x2 - x1, y2 - y1)
+
+def get_predicted_position(pre_objs, current_objs):
+    pred_list = []
+    if len(pre_objs)!=0 and len(current_objs) != 0:
+        for p_ob in pre_objs:
+            for c_obj in current_objs:
+                if p_ob[0] == c_obj[0]:
+                    cen_xp = p_ob[2]
+                    cen_yp = p_ob[3]
+                    cen_xc = c_obj[2]
+                    cen_yc = c_obj[3]
+                    predicted_dis = dis(cen_xp, cen_yp, cen_xc, cen_yc)*10
+                    ang = math.atan2(cen_yc - cen_yp, cen_xc - cen_xp)
+                    pred_x = cen_xc + predicted_dis * math.cos(ang)
+                    pred_y = cen_yc + predicted_dis * math.cos(ang)
+                    pred_list.append((pred_x, pred_y))
+    return pred_list
