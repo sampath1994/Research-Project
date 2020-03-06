@@ -100,7 +100,7 @@ def ped(frame, ped_cascade, current_objs, cont, frame_count, ped_count_in_roi, w
 # cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    camera = cv2.VideoCapture(str(Path.cwd().parent / 'videos' / 'pedestrians.avi'))
+    camera = cv2.VideoCapture(str(Path.cwd().parent / 'videos' / 'pedestrians8tv.mp4'))
     #camera.open("pedestrians.avi")
     ped_cascade = cv2.CascadeClassifier('cascade3.xml')
     frm_count = 0
@@ -121,7 +121,7 @@ if __name__ == "__main__":
         if k == ord('q'):
             break
         elif k == ord('s'):
-            cv2.imwrite('pedestrian_still.jpg', frame)
+            cv2.imwrite('pedestrian_still.jpg', framez)
 
     camera.release()
     cv2.destroyAllWindows()

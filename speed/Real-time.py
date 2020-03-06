@@ -54,7 +54,7 @@ upper_dic = {}
 lower_dic = {}
 REF_SPEED_MODE = False
 BOTH_CHANNEL = True
-real_dis = 15  # real distance in Meters, between marked reference points
+real_dis = 5  # 15 for simulator videos  # real distance in Meters, between marked reference points
 frame_thresh = 250  # clean dictionaries older than frame threshold
 cascade_bb_counts = []  # haar cascade detections for few frames
 start_decision_flg = False  # flag true for defined time to take decision
@@ -96,7 +96,8 @@ pre_objs = []
 current_objs = []
 ped_count_in_roi = 0
 wait_frame_count = 0
-standing_thresh = 5
+standing_thresh = 2
+wait_time = 0
 ###########################################################################
 arr_v = []
 arr_p = []
@@ -117,6 +118,7 @@ while True:
                 (grabbed, framez) = camera.read()
                 if grabbed:
                     ped_count_in_roi, frm_count, wait_frame_count = ped(framez, ped_cascade, current_objs, cont, frm_count, ped_count_in_roi, wait_frame_count, mot_tracker, standing_thresh)
+                    wait_time = int(wait_frame_count*0.1)
     ##############################
     local_bbs = []
     if flag:
@@ -179,7 +181,7 @@ while True:
         cv2.putText(frame, str(avg_speed) + "kmph", (35, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
         #############################################################
 
-        ped_green_light = get_decision(sim, total_vehicles, ped_count_in_roi, avg_speed, wait_frame_count, requirement_threshold)
+        ped_green_light = get_decision(sim, total_vehicles, ped_count_in_roi, avg_speed, wait_time, requirement_threshold)
 
         display_out = np.zeros((300, 350, 3), dtype="uint8")
         cv2.putText(display_out, "frame count: "+str(frame_count), (15, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
@@ -197,7 +199,7 @@ while True:
                 print("Empty road")
         #######################################
         total_vehicles = 0
-        cv2.putText(display_out, "Wait time : " + str(wait_frame_count), (15, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+        cv2.putText(display_out, "Wait time : " + str(wait_time), (15, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                     (0, 255, 0), 2)
         cv2.putText(display_out, "Pedestrian count : " + str(ped_count_in_roi), (15, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                     (0, 255, 0), 2)
@@ -206,7 +208,7 @@ while True:
         ########################################
         arr_p.append(ped_count_in_roi)
         arr_s.append(avg_speed)
-        arr_w.append(wait_frame_count)
+        arr_w.append(wait_time)
         if ped_green_light:
             arr_decision.append(5)
             start_decision_flg = True
