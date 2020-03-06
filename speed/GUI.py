@@ -13,7 +13,7 @@ Last edited: August 2017
 """
 
 from PyQt5.QtWidgets import (QWidget, QPushButton, QLineEdit,
-                             QInputDialog, QApplication, QFileDialog, QCheckBox, QLabel)
+                             QInputDialog, QApplication, QFileDialog, QCheckBox, QLabel, QComboBox)
 import sys
 import os
 
@@ -35,7 +35,7 @@ class Example(QWidget):
         self.btn2.clicked.connect(self.openFileNameDialog2)
 
         self.btn3 = QPushButton('Start', self)
-        self.btn3.move(20, 120)
+        self.btn3.move(20, 200)
         self.btn3.clicked.connect(self.exe_another)
 
         self.le = QLineEdit(self)
@@ -56,6 +56,12 @@ class Example(QWidget):
         self.lbl3 = QLabel('Pedestrians', self)
         self.lbl3.move(80, 100)
 
+        self.lbl4 = QLabel('Ref point coord file', self)
+        self.lbl4.move(20, 155)
+
+        self.lbl4 = QLabel('Real distance between ref', self)
+        self.lbl4.move(20, 177)
+
         self.le3 = QLineEdit(self)
         self.le3.move(130, 80)
 
@@ -65,7 +71,19 @@ class Example(QWidget):
         self.ckbox2 = QCheckBox('Reference Speed mode', self)
         self.ckbox2.move(130, 125)
 
-        self.setGeometry(300, 300, 290, 150)
+        self.ckbox3 = QCheckBox('Speed and Count only', self)
+        self.ckbox3.move(130, 140)
+
+        self.comboBox = QComboBox(self)
+        self.comboBox.addItem("1")
+        self.comboBox.addItem("2")
+        self.comboBox.move(130, 155)
+
+        self.le5 = QLineEdit(self)
+        self.le5.setText('5')
+        self.le5.move(130, 177)
+
+        self.setGeometry(300, 300, 290, 225)
         self.setWindowTitle('Control Center')
         self.show()
 
@@ -84,7 +102,14 @@ class Example(QWidget):
         buff2 = "no"
         if self.ckbox2.isChecked():
             buff2 = "yes"
-        comnd = "python Real-time.py " + "-i1 " + self.le.text() + " -i2 " + self.le2.text() + " -i3 " + buff + " -i4 " + self.le3.text() + " -i5 " + self.le4.text() + " -i6 " + buff2
+
+        buff3 = self.comboBox.currentText()
+
+        buff4 = "yes"
+        if self.ckbox3.isChecked():
+            buff4 = "no"
+
+        comnd = "python Real-time.py " + "-i1 " + self.le.text() + " -i2 " + self.le2.text() + " -i3 " + buff + " -i4 " + self.le3.text() + " -i5 " + self.le4.text() + " -i6 " + buff2 + " -i7 " + buff4 + " -i8 " + buff3 + " -i9 " + self.le5.text()
         print(comnd)
         os.system(comnd)
 

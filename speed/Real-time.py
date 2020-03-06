@@ -8,7 +8,7 @@ from speed.track import update, get_vehicle_count_in_blob, count_and_speed, spee
 from fuzzy_decision.Decision import init_fuzzy_system, get_decision, get_graph
 import argparse
 
-ARGS = False
+ARGS = True
 ap = argparse.ArgumentParser()
 if ARGS:
     ap.add_argument("-i1", "--input1", required=True)
@@ -17,6 +17,9 @@ if ARGS:
     ap.add_argument("-i4", "--input4", required=True)
     ap.add_argument("-i5", "--input5", required=True)
     ap.add_argument("-i6", "--input6", required=True)
+    ap.add_argument("-i7", "--input7", required=True)
+    ap.add_argument("-i8", "--input8", required=True)
+    ap.add_argument("-i9", "--input9", required=True)
     args = vars(ap.parse_args())
 algorithm = bgs.MultiLayer()
 video_file = str(Path.cwd().parent / 'videos' / 'video03.avi')
@@ -45,7 +48,7 @@ total_vehicles = 0
 frame_count = 0
 frame_interval = 5  # speed and count calculated for each of this number of frames
 avg_speed = 0
-frame_rate = 60
+frame_rate = capture.get(cv2.CAP_PROP_FPS)
 df = pd.read_csv(speed_weight_file, delimiter=',', header=None)
 wght = float(df[0].values)
 bis = float(df[1].values)
@@ -74,9 +77,18 @@ if ARGS:
         REF_SPEED_MODE = True
     else:
         REF_SPEED_MODE = False
+    if args["input7"] == "yes":
+        BOTH_CHANNEL = True
+    else:
+        BOTH_CHANNEL = False
+    real_dis = int(args["input9"])
 if REF_SPEED_MODE:
     upper_row, lower_row = load_speed_coord(str(Path.cwd() / 'screen-mark' / 'speed_markings.pkl'))
-
+    if ARGS:
+        if args["input8"] == "1":
+            upper_row, lower_row = load_speed_coord(str(Path.cwd() / 'screen-mark' / 'speed_markings.pkl'))
+        elif args["input8"] == "2":
+            upper_row, lower_row = load_speed_coord(str(Path.cwd() / 'screen-mark' / 'speed_markings-2.pkl'))
 ###########################################################################
 from sort import *
 from pedestrian.counter import get_roi_contour
