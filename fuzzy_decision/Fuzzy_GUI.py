@@ -61,10 +61,10 @@ class Example(QWidget):
             next(csv_reader)
 
             for row in csv_reader:
-                self.vCount.append(row[0])
-                self.pCount.append(row[1])
-                self.vSpeed.append(row[2])
-                self.wTime.append(row[3])
+                self.vCount.append(int(row[0]))
+                self.pCount.append(int(row[1]))
+                self.vSpeed.append(int(row[2]))
+                self.wTime.append(int(row[3]))
                 # print(self.vCount)
                 self.trafficdata = [(row[0], row[1], row[2], row[3])]
                 # print(self.trafficdata)
